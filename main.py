@@ -1,7 +1,13 @@
 import matplotlib.pyplot as plt
-
+from Tkinter import *
 from pid import PID
+from Manager import Manager
 
+
+def main():
+    root = Tk()
+    Manager(root)
+    root.mainloop()
 
 def test_pid(p=0.2, i=0.0, d= 0.0):
     pid = PID.PID(p, i, d)
@@ -47,7 +53,8 @@ def test_pid(p=0.2, i=0.0, d= 0.0):
         plt.pause(0.05)
 
 if __name__ == "__main__":
-    test_pid(1.1, 0.5, 0.001)
+    main()
+    # test_pid(1.1, 0.5, 0.001)
 
 
 

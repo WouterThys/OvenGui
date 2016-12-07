@@ -3,10 +3,11 @@ Author: Vincent De Haen
 Date: 07/12/2016"""
 import threading
 import time
-from SerialUart import PICMessage, SerialInterface
+from PICClasses import PICMessage
 
 RETRY_TIME = 0.1
 SEND_TIME = 10
+
 
 class SerialThread(threading.Thread):
     """ Class handeling serial connection to pic"""

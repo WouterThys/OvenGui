@@ -3,7 +3,7 @@ import tkSimpleDialog
 from Tkinter import *
 
 import serial
-from my_serial.SerialUart import SerialInterface
+from my_serial.SerialInterface import SerialInterface
 
 
 class SerialSettingsDialog(tkSimpleDialog.Dialog):
