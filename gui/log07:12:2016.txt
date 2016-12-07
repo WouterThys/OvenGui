@@ -1,0 +1,6 @@
+* time: 20:14:42, sender: Panda, type: message, command: GN, message: Panda
+* time: 20:14:44, sender: Panda, type: message, command: GN, message: Panda
+* time: 20:17:17, sender: , type: ack, command: , message: [A]1
+* time: 20:17:17, sender: Panda, type: message, command: GN, message: Panda
+* time: 20:17:19, sender: , type: ack, command: , message: [A]2
+* time: 20:17:19, sender: Panda, type: message, command: GN, message: Panda
