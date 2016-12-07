@@ -106,7 +106,7 @@ class ThreadedClient:
         self.gui = MainScreen(master, self.queue, self.settings, self.serial, self.end_application)
 
         # Set up the thread to do asynchronous I/O. (more should prolly be done here)
-        self.thread1 = SerialThread.SerialThread(self.event, self.queue)
+        self.thread1 = SerialThread.SerialThread(self.event, self.queue, self.serial)
         self.thread1.setDaemon(True)
         self.thread1.start()
 
@@ -119,7 +119,7 @@ class ThreadedClient:
         Check every 100 ms if there is something new in the queue
         """
         self.gui.process_incoming()
-        if not self.event.is_set():
+        if self.event.is_set():
             # This is the brutal stop of the system. Maybe do some cleanup before actually shutting down
             import sys
             sys.exit(1)

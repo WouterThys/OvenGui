@@ -10,14 +10,14 @@ SEND_TIME = 10
 
 class SerialThread(threading.Thread):
     """ Class handeling serial connection to pic"""
-    def __init__(self, event, queue ):
+    def __init__(self, event, queue, serial_interface):
         """
 
         :param event:
         :param queue:
         """
         threading.Thread.__init__(self)
-        self.serial_interface = SerialInterface()
+        self.serial_interface = serial_interface
         self.event = event
         self.queue = queue
 
