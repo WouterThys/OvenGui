@@ -6,6 +6,7 @@ from Tkinter import *
 import MainMenu
 from gui.Dialogs import PicInfoDialog
 from gui.graphs import Graph
+from my_serial import SerialThread
 from my_serial.SerialUart import SerialInterface, PICMessage, PICInfo
 from settings.Settings import Settings
 
@@ -98,15 +99,15 @@ class ThreadedClient:
         self.settings = Settings()
         self.serial = SerialInterface()
 
-        # Create the queue
+        # Create the queue and event
         self.queue = Queue.Queue()
-
+        self.event = threading.Event()
         # Set up the GUI
         self.gui = MainScreen(master, self.queue, self.settings, self.serial, self.end_application)
 
         # Set up the thread to do asynchronous I/O. (more should prolly be done here)
-        self.running = 1
-        self.thread1 = threading.Thread(target=self.worker_thread)
+        self.thread1 = SerialThread.SerialThread(self.event, self.queue)
+        self.thread1.setDaemon(True)
         self.thread1.start()
 
         # Start the periodic call in the GUI to check if the queue contains anything, start serial
@@ -118,32 +119,17 @@ class ThreadedClient:
         Check every 100 ms if there is something new in the queue
         """
         self.gui.process_incoming()
-        if not self.running:
+        if not self.event.is_set():
             # This is the brutal stop of the system. Maybe do some cleanup before actually shutting down
             import sys
             sys.exit(1)
-        self.master.after(250, self.periodic_call)
-
-    def worker_thread(self):
-        """
-        This is where we handle the asynchronous I/O. The thread has to yield control.
-        """
-        while self.running:
-            # Do the real stuff here (test with random number)
-            #time.sleep(rand.random()*0.3)
-            #msg = rand.random()
-            #self.queue.put(msg)
-            if self.serial.serial_has_input() > 0:
-                msg = self.serial.serial_read()
-                message = PICMessage("Compy")
-                if message.convert(msg) > 0:
-                    self.queue.put(message)
+        self.master.after(200, self.periodic_call)
 
     def end_application(self):
         self.serial.serial_destroy()
         self.master.quit()
-        #self.master.destoy()
-        self.running = 0
+        self.event.set()
+        self.thread1.join(5)
 
 rand = random.Random()
 root = Tk()
