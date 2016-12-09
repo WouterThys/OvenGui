@@ -1,10 +1,28 @@
 import Queue
 from Tkinter import *
-
+from numpy import arange, full
 import MainMenu
 from gui.Dialogs import PicInfoDialog
 from gui.graphs import Graph
 from my_serial.PICClasses import PICInfo
+from pid.PID import PID
+
+TARGET_Y = []
+TARGET_X = []
+for i in range(0,350):
+    TARGET_X.append(i)
+    if i < 110:
+        TARGET_Y.append((180.0/110.0)*float(i))
+    if (i >= 110) and (i < 200):
+        TARGET_Y.append(180)
+    if (i >= 200) and (i < 250):
+        TARGET_Y.append((120.0/50.0)*(float(i)-200) + 180)
+    if (i >= 250) and (i < 260):
+        TARGET_Y.append(300)
+    if i >= 260:
+        TARGET_Y.append(TARGET_Y[-1]-2)
+
+TARGET = (TARGET_X, TARGET_Y)
 
 
 class MainScreen:
@@ -13,6 +31,9 @@ class MainScreen:
         self.queue = queue
         self.serial = serial
         self.pic_info = PICInfo
+        self.pid = PID(15, 0.05, 0.001)
+        self.pid.dt = 1
+        self.cnt = 0
         # Set up the main menu
         MainMenu.MainMenu(master, settings, serial, end_command)
         # Window settings
@@ -31,12 +52,7 @@ class MainScreen:
         self.pic_awake_btn = Button(button_frame, text="Wake PIC", command=self.send_get_name_request)
         self.pic_awake_btn.pack(side=TOP, fill=X)
         # Graph
-        self.graph = Graph(graph_frame)
-
-        # Set up status bar
-        # self.status = StatusBar(master)
-        # self.status.get_status_bar().pack(side=BOTTOM)
-        # self.status.put_status_message("Initializing")
+        self.graph = Graph(graph_frame, TARGET)
 
     def process_incoming(self):
         """
@@ -72,7 +88,14 @@ class MainScreen:
 
     def do_logic(self, val):
         try:
-            self.graph.update(float(val))
+            val = float(val)
+            val /= 10
+            self.pid.set_point = TARGET_Y[self.cnt]# Point it should be
+            self.cnt += 1
+            output = self.pid.do_work(val)
+            print output
+
+            self.graph.update(val, output)
         except ValueError:
             pass
 

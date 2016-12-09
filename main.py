@@ -21,7 +21,7 @@ def test_pid(p=0.2, i=0.0, d= 0.0):
         else:
             setpoint_list.append(1)
 
-    pid.setPoint = 0.0
+    pid.set_point = 0.0
     pid.dt = 0.01
     feedback = 0
 
@@ -37,10 +37,10 @@ def test_pid(p=0.2, i=0.0, d= 0.0):
     plt.ion()
 
     for i in range(1, 30):
-        pid.setPoint = setpoint_list[i]
+        pid.set_point = setpoint_list[i]
         output = pid.do_work(feedback)
         # Simulate new feedback
-        if pid.setPoint > 0:
+        if pid.set_point > 0:
             feedback += (output - (1/i))
 
         feedback_list.append(feedback)

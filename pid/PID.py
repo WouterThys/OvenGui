@@ -1,10 +1,10 @@
 class PID:
-    def __init__(self, P, I, D):
-        self.Kp = P
-        self.Ki = I
-        self.Kd = D
+    def __init__(self, p, i, d):
+        self.Kp = p
+        self.Ki = i
+        self.Kd = d
 
-        self.setPoint = 0.0     # Desired value
+        self.set_point = 0.0     # Desired value
         self.error = 0.0        # Error between desired and measured value
         self.prev_error = 0.0   # Previous error
         self.dt = 1.0     # Time interval in which every cycle happens
@@ -16,16 +16,16 @@ class PID:
 
     # Integrator part
     def integrate(self, error):
-         i = self.integrator + error*self.dt
-         if i > self.windup:
-             return 0
-         else:
-             self.integrator += (error*self.dt)
-             return self.integrator
+        i = self.integrator + error*self.dt
+        if i > self.windup:
+            return 0
+        else:
+            self.integrator += (error*self.dt)
+            return self.integrator
 
     # Differential part
     def differentiate(self, error):
-        return ((self.error - self.prev_error) / self.dt)
+        return (self.error - self.prev_error) / self.dt
 
     # Proportional part
     def proportional(self, error):
@@ -34,7 +34,7 @@ class PID:
     # Do the actual calculation
     def do_work(self, measured_value):
         # Calculate the error
-        self.error = self.setPoint - measured_value
+        self.error = self.set_point - measured_value
 
         # Calculate P I and D values
         P = self.Kp * self.proportional(self.error)
