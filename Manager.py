@@ -42,15 +42,21 @@ class Manager:
         # Create local instances
         self.settings = Settings()
         self.serial = SerialInterface()
-        self.pid = PID(20, 0.005, 0.01)
+
+        # PID values
+        self.kp = 20
+        self.ki = 0.005
+        self.kd = 0.01
+        self.pid = PID(self.kp, self.ki, self.kd)
         self.pid.dt = TIME_INTERVAL
         self.cnt = 0
+        self.temp_real = 0
 
         # Create the queue and event
         self.queue = Queue.Queue()
         self.event = threading.Event()
         # Set up the GUI
-        self.gui = MainScreen(master, self.queue, self.settings, self.serial, self.end_application)
+        self.gui = MainScreen(master, self.queue, self.settings, self.serial, self, self.end_application)
 
         # Set up the thread to do asynchronous I/O. (more should prolly be done here)
         self.thread1 = SerialThread(self.event, self.queue, self.serial)
@@ -63,10 +69,10 @@ class Manager:
 
     def periodic_call(self):
         """
-        Check every 100 ms if there is something new in the queue
+        Check every 200 ms if there is something new in the queue
         """
-        self.gui.process_incoming()
         self.do_logic()
+        self.gui.process_incoming()
         if self.event.is_set():
             # This is the brutal stop of the system. Maybe do some cleanup before actually shutting down
             import sys
@@ -80,12 +86,12 @@ class Manager:
                 if msg.command == "AR":
                     val = msg.message
                     try:
-                        val = float(val)
-                        val = self.digital_to_temp(val)
+                        self.temp_real = float(val)
+                        self.temp_real = self.digital_to_temp(self.temp_real)
                         self.pid.set_point = TARGET_Y[self.cnt]  # Point it should be
                         self.cnt += 1
-                        output = self.pid.do_work(val)
-                        self.gui.graph.update(val, output)
+                        pid_output = self.pid.do_work(self.temp_real)
+                        self.gui.graph.update(self.temp_real, pid_output)
                     except ValueError:
                         pass
                 else:
