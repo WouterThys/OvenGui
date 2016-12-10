@@ -60,6 +60,7 @@ class Manager:
         self.queue = Queue.Queue()
         self.read_event = threading.Event()
         self.write_event = threading.Event()
+        self.last_message = None
         # Set up the GUI
         self.gui = MainScreen(master, self.my_settings, self.my_serial, self, self.end_application)
 
@@ -67,7 +68,6 @@ class Manager:
         self.reading_thread = ReadThread(self.read_event, self.queue, self.my_serial)
         self.reading_thread.setDaemon(True)
         self.reading_thread.start()
-
         self.writing_thread = WriteThread(self.write_event, self.my_serial)
         self.writing_thread.setDaemon(True)
 
@@ -89,16 +89,16 @@ class Manager:
     def do_logic(self):
         while self.queue.qsize():
             try:
-                msg = self.queue.get(0)
-                if msg.command == "AR":
-                    val = msg.message
+                self.last_message = self.queue.get(0)
+                if self.last_message.command == "AR":
+                    val = self.last_message.message
                     try:
                         self.temp_real = float(val)
                         self.temp_real = self.digital_to_temp(self.temp_real)
                         self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
                         self.cnt += 1
                         pid_output = self.pid.do_work(self.temp_real)
-                        self.gui.graph.update(self.temp_real, pid_output)
+                        self.gui.graph.update_graph(self.temp_real, pid_output)
                     except ValueError:
                         pass
                 else:
@@ -110,7 +110,13 @@ class Manager:
         return value/10
 
     def start_reading_thread(self):
-        self.writing_thread.start()
+        if not self.write_event.is_set:
+            self.writing_thread.start()
+        else:
+            self.write_event.clear()
+            self.writing_thread = WriteThread(self.write_event, self.my_serial)
+            self.writing_thread.setDaemon(True)
+            self.writing_thread.start()
 
     def stop_reading_thread(self):
         self.write_event.set()

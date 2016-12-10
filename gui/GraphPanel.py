@@ -1,18 +1,19 @@
-import Tkinter as Tk
+from Tkinter import *
 import matplotlib
-
-matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+matplotlib.use('TkAgg')
+
 
 INTERVAL = 1
 MIN = 60
 
 
-class Graph:
-    def __init__(self, master):
-        self.f = Figure(figsize=(5, 4), dpi=100)
+class GraphPanel(Frame):
+    def __init__(self, master, *args, **kwargs):
+        Frame.__init__(self, master, *args, **kwargs)
+
+        self.f = Figure()
         self.a = self.f.add_subplot(111)
         self.a.set_xlabel("Time")
         self.a.set_ylabel("Temp")
@@ -29,22 +30,22 @@ class Graph:
         self.real_line, = self.a.plot(self.x_real, self.y_real, '.r')
         self.pid_line, = self.a.plot(self.x_pid, self.y_pid)
 
-        self.canvas = FigureCanvasTkAgg(self.f, master=master)
+        self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.show()
-        self.canvas.get_tk_widget().pack(side=Tk.BOTTOM, fill=Tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=1)
         self.f.tight_layout()
 
         # self.toolbar = NavigationToolbar2TkAgg(self.canvas, master)
         # self.toolbar.update()
         # self.canvas._tkcanvas.pack(side=Tk.BOTTOM, fill=Tk.BOTH, expand=1)
         #
-        # self.canvas.mpl_connect('key_press_event', self.on_key_event)
+        # self.canvas.mpl_connect('key_press_event', self.on_key_event
 
-    def on_key_event(self, event):
-        print("you pressed %s" % event.key)
-        key_press_handler(event, self.canvas, self.toolbar)
+    # def on_key_event(self, event):
+    #     print("you pressed %s" % event.key)
+    #     key_press_handler(event, self.canvas, self.toolbar)
 
-    def update(self, value, pid=0):
+    def update_graph(self, value, pid=0):
         self.cnt += INTERVAL
         self.x_real.append(self.cnt)
         self.y_real.append(value)
