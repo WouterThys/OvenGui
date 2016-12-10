@@ -87,20 +87,31 @@ class Manager:
         self.master.after(200, self.periodic_call)
 
     def do_logic(self):
+        # Check if threads still running
+        if self.write_event.is_set():
+            self.writing_thread.join(5)
+            self.gui.forced_stop()
+        if self.read_event.is_set():
+            self.gui.forced_stop()
         while self.queue.qsize():
             try:
                 self.last_message = self.queue.get(0)
-                if self.last_message.command == "AR":
-                    val = self.last_message.message
-                    try:
-                        self.temp_real = float(val)
-                        self.temp_real = self.digital_to_temp(self.temp_real)
-                        self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
-                        self.cnt += 1
-                        pid_output = self.pid.do_work(self.temp_real)
-                        self.gui.graph.update_graph(self.temp_real, pid_output)
-                    except ValueError:
+                if self.last_message.type == "message":
+                    if self.last_message.command == "AR":
+                        val = self.last_message.message
+                        try:
+                            self.temp_real = float(val)
+                            self.temp_real = self.digital_to_temp(self.temp_real)
+                            self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
+                            self.cnt += 1
+                            pid_output = self.pid.do_work(self.temp_real)
+                            self.gui.graph.update_graph(self.temp_real, pid_output)
+                        except ValueError:
+                            pass
+                    else:
                         pass
+                elif self.last_message.type == "ack":
+                    self.writing_thread.acknowledge(self.last_message.message)
                 else:
                     pass
             except Queue.Empty:
@@ -109,7 +120,7 @@ class Manager:
     def digital_to_temp(self, value):
         return value/10
 
-    def start_reading_thread(self):
+    def start_writing_thread(self):
         if not self.write_event.is_set:
             self.writing_thread.start()
         else:
@@ -118,7 +129,7 @@ class Manager:
             self.writing_thread.setDaemon(True)
             self.writing_thread.start()
 
-    def stop_reading_thread(self):
+    def stop_writing_thread(self):
         self.write_event.set()
         self.writing_thread.join(5)
 

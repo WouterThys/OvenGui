@@ -10,7 +10,7 @@ MIN = 60
 
 
 class GraphPanel(Frame):
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, master, info_panel, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
 
         self.f = Figure()
@@ -23,6 +23,7 @@ class GraphPanel(Frame):
         self.x_real = []
         self.y_target = []
         self.x_target = []
+        self.is_target_set = False
         self.y_pid = []
         self.x_pid = []
 
@@ -35,11 +36,18 @@ class GraphPanel(Frame):
         self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=1)
         self.f.tight_layout()
 
+        if info_panel is not None:
+            self.info_panel = info_panel
+            self.bind("<Enter>", lambda event:self.display_info(event, 'Select a graph'))
+            self.bind("<Leave>", lambda event: self.remove_info(event, ''))
+
         # self.toolbar = NavigationToolbar2TkAgg(self.canvas, master)
         # self.toolbar.update()
         # self.canvas._tkcanvas.pack(side=Tk.BOTTOM, fill=Tk.BOTH, expand=1)
-        #
-        # self.canvas.mpl_connect('key_press_event', self.on_key_event
+        def on_mouse_motion(event):
+            if (info_panel is not None) and (self.is_target_set):
+                self.display_info(event,"")
+        self.canvas.mpl_connect('motion_notify_event', on_mouse_motion)
 
     # def on_key_event(self, event):
     #     print("you pressed %s" % event.key)
@@ -80,6 +88,7 @@ class GraphPanel(Frame):
 
             except Exception as e:
                 print e.message
+                self.is_target_set = False
                 return False
 
             self.x_target = x_vals
@@ -93,8 +102,25 @@ class GraphPanel(Frame):
             self.a.set_ylim([-1, (max_y + 50)])
             self.a.set_xlim([-1, (max_x + 10)])
 
+            self.is_target_set = True
             self.canvas.draw()
+
+            if self.info_panel is not None:
+                self.unbind("<Enter>")
+
             return True
         else:
             # Return some error
+            self.is_target_set = False
             return False
+
+    def display_info(self, event, arg):
+        if self.info_panel is not None:
+            if self.is_target_set:
+                self.info_panel.set_info("x: {}, y: {}".format(event.x, event.y))
+            else:
+                self.info_panel.set_info(arg)
+
+    def remove_info(self, event, arg):
+        if self.info_panel is not None:
+            self.info_panel.set_info(arg)

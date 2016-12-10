@@ -14,36 +14,41 @@ class FeedBackPanel(Frame):
         self.rowconfigure(4, weight=1)
         self.rowconfigure(5, weight=1)
 
-        title_lbl = Label(self, text="Feedback", bd=2, relief=FLAT, fg="slate gray")
+        title_lbl = Label(self, text="Values", bd=2, relief=FLAT, fg="slate gray")
         title_lbl.grid(row=0, columnspan=3)
 
         Label(self, text="Target: ", fg="dim gray").grid(row=2, column=0, sticky=E)
         Label(self, text="Sense: ", fg="dim gray").grid(row=3, column=0, sticky=E)
-        Label(self, text="PID: ", fg="dim gray").grid(row=4, column=0, sticky=E)
+        Label(self, text="Error: ", fg="dim gray").grid(row=4, column=0, sticky=E)
+        Label(self, text="PID: ", fg="dim gray").grid(row=5, column=0, sticky=E)
 
         self.target_txt = StringVar()
         self.sense_txt = StringVar()
         self.pid_txt = StringVar()
+        self.error_txt = StringVar()
         Entry(self, textvariable=self.target_txt, fg="gainsboro", state=DISABLED, justify=CENTER)\
             .grid(row=2, column=1, columnspan=2, sticky=W)
         Entry(self, textvariable=self.sense_txt, fg="gainsboro", state=DISABLED, justify=CENTER) \
             .grid(row=3, column=1, columnspan=2, sticky=W)
+        Entry(self, textvariable=self.error_txt, fg="gainsboro", state=DISABLED, justify=CENTER) \
+            .grid(row=4, column=1, columnspan=2, sticky=W)
         self.pid_ent = Entry(self, textvariable=self.pid_txt, fg="gainsboro", justify=CENTER)
-        self.pid_ent.grid(row=4, column=1, columnspan=2, sticky=W)
+        self.pid_ent.grid(row=5, column=1, columnspan=2, sticky=W)
 
         self.target_txt.set("...")
         self.sense_txt.set("...")
         self.pid_txt.set("...")
+        self.error_txt.set("...")
 
         self.kp_txt = StringVar()
         self.ki_txt = StringVar()
         self.kd_txt = StringVar()
         Label(self, textvariable=self.kp_txt, fg="gainsboro", state=DISABLED, justify=CENTER) \
-            .grid(row=5, column=0)
+            .grid(row=6, column=0)
         Label(self, textvariable=self.ki_txt, fg="gainsboro", state=DISABLED, justify=CENTER) \
-            .grid(row=5, column=1)
+            .grid(row=6, column=1)
         Label(self, textvariable=self.kd_txt, fg="gainsboro", state=DISABLED, justify=CENTER) \
-            .grid(row=5, column=2)
+            .grid(row=6, column=2)
 
         self.kp_txt.set("Kp: ...")
         self.ki_txt.set("Ki: ...")
@@ -66,6 +71,9 @@ class FeedBackPanel(Frame):
             self.pid_ent.configure(bg="lawn green")
         else:
             self.pid_ent.configure(bg="royal blue")
+
+    def set_error_value(self, value):
+        self.error_txt.set("{0:.2f}".format(value))
 
     def set_kp_value(self, value):
         self.kp_txt.set("Kp: "+str(value))

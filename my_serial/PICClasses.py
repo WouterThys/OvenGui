@@ -78,6 +78,7 @@ class PICMessage:
                 self.write_to_file()
                 return 1
             elif t == self.message_type.get("ack"):
+                input_msg = input_msg[3:]
                 self.message = input_msg
                 self.message_time = time.time()
                 self.type = "ack"

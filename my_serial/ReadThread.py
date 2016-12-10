@@ -5,12 +5,10 @@ import threading
 import time
 from PICClasses import PICMessage
 
-READ_INTERVAL = 0.1  # Read interval in seconds
-
 
 class ReadThread(threading.Thread):
     """ Class handling serial connection to pic"""
-    def __init__(self, event, queue, serial_interface):
+    def __init__(self, event, queue, serial_interface, read_interval=0.1):
         """
 
         :param event:
@@ -20,6 +18,7 @@ class ReadThread(threading.Thread):
         self.serial_interface = serial_interface
         self.event = event
         self.queue = queue
+        self.read_interval = read_interval
 
     def run(self):
         """
@@ -35,5 +34,5 @@ class ReadThread(threading.Thread):
                         self.queue.put(message)
 
             time_delta = time.time()-start_time
-            if time_delta < READ_INTERVAL:
-                time.sleep(READ_INTERVAL - time_delta)
+            if time_delta < self.read_interval:
+                time.sleep(self.read_interval - time_delta)

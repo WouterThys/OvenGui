@@ -69,6 +69,64 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
         pass
 
 
+class PIDSettingsDialog(tkSimpleDialog.Dialog):
+    def __init__(self, master, pid):
+        self.pid = pid
+        tkSimpleDialog.Dialog.__init__(self, master, "PID settings")
+
+    def body(self, master):
+        Label(master, text="Ki").grid(row=0, sticky=W)
+        Label(master, text="Kp").grid(row=1, sticky=W)
+        Label(master, text="Kd").grid(row=2, sticky=W)
+        Label(master, text="dt").grid(row=3, sticky=W)
+        Label(master, text="WU").grid(row=4, sticky=W)
+
+        kp_str = StringVar()
+        ki_str = StringVar()
+        kd_str = StringVar()
+        dt_str = StringVar()
+        wu_str = StringVar()
+
+        self.kp_ent = Entry(master, textvariable=kp_str)
+        self.ki_ent = Entry(master, textvariable=ki_str)
+        self.kd_ent = Entry(master, textvariable=kd_str)
+        self.dt_ent = Entry(master, textvariable=dt_str)
+        self.wu_ent = Entry(master, textvariable=wu_str)
+
+        kp_str.set(self.pid.Kp)
+        ki_str.set(self.pid.Ki)
+        kd_str.set(self.pid.Kd)
+        dt_str.set(self.pid.dt)
+        wu_str.set(self.pid.windup)
+
+        self.kp_ent.grid(row=0, column=1)
+        self.ki_ent.grid(row=1, column=1)
+        self.kd_ent.grid(row=2, column=1)
+        self.dt_ent.grid(row=3, column=1)
+        self.wu_ent.grid(row=4, column=1)
+
+        return self.kp_ent # Initial focus
+
+    def validate(self):
+        try:
+            # result = dict([('parity', pari), ('baudrate', baud), ('bytesize', bits), ('stopbits', stop)])
+            self.pid.Kp= int(self.kp_ent.get())
+            self.pid.Ki= int(self.ki_ent.get())
+            self.pid.Kd= int(self.kd_ent.get())
+            self.pid.dt= int(self.dt_ent.get())
+            self.pid.wu= int(self.wu_ent.get())
+            return 1
+        except Exception as e:
+            tkMessageBox.showerror(
+                "Bad input",
+                "Illegal values, please try again: "+e.message
+            )
+            return 0
+
+    def apply(self):
+        pass
+
+
 class PicInfoDialog(tkSimpleDialog.Dialog):
     def __init__(self, master, PICInfo):
         self.pic_info = PICInfo

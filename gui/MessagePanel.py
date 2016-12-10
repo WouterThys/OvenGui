@@ -4,7 +4,7 @@ import time
 
 class MessagePanel(Frame):
     def __init__(self, master, *args, **kwargs):
-        #Frame.__init__(self, master, width=50, height=100, *args, **kwargs)
+        # Frame.__init__(self, master, width=50, height=100, *args, **kwargs)
         Frame.__init__(self, master, height=20, *args, **kwargs)
 
         self.config(bd=1, relief=RAISED, padx=2, pady=10)
@@ -33,20 +33,24 @@ class MessagePanel(Frame):
         time_lbl.grid(row=1, column=2)
         time_lbl = Label(input_frame, text="Message", fg="dim gray")
         time_lbl.grid(row=1, column=3, columnspan=2)
+
         # Text widgets
-        self.time_txt = Text(input_frame, bg='lavender', state=DISABLED, font=("consolas", 12), undo=True, wrap='word', width=10, height=8)
+        txt_options = {'bg': 'lavender', 'fg': 'darkgray', 'state': DISABLED, 'font': ('consolas', 12), 'undo': True,
+                       'wrap': 'word'}
+
+        self.time_txt = Text(input_frame, width=10, height=8, **txt_options)
         self.time_txt.grid(row=2, column=0, pady=2)
         self.time_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.time_txt.bind("<Button-5>", self.on_mouse_wheel)
-        self.sender_txt = Text(input_frame, bg='lavender', state=DISABLED, font=("consolas", 12), undo=True, wrap='word', width=10, height=8)
+        self.sender_txt = Text(input_frame, width=10, height=8, **txt_options)
         self.sender_txt.grid(row=2, column=1, pady=2)
         self.sender_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.sender_txt.bind("<Button-5>", self.on_mouse_wheel)
-        self.command_txt = Text(input_frame, bg='lavender', state=DISABLED, font=("consolas", 12), undo=True, wrap='word', width=10, height=8)
+        self.command_txt = Text(input_frame, width=10, height=8, **txt_options)
         self.command_txt.grid(row=2, column=2, pady=2)
         self.command_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.command_txt.bind("<Button-5>", self.on_mouse_wheel)
-        self.message_txt = Text(input_frame, bg='lavender', state=DISABLED, font=("consolas", 12), undo=True, wrap='word', width=30, height=8)
+        self.message_txt = Text(input_frame, width=30, height=8, **txt_options)
         self.message_txt.grid(row=2, column=3, columnspan=2, pady=2, sticky='nsew')
         self.message_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.message_txt.bind("<Button-5>", self.on_mouse_wheel)
@@ -81,25 +85,25 @@ class MessagePanel(Frame):
             self.command_txt.yview_scroll((event.delta), "units")
             self.message_txt.yview_scroll((event.delta), "units")
         if event.num == 4 or event.delta == 120:
-            self.time_txt.yview_scroll((event.delta/120), "units")
-            self.sender_txt.yview_scroll((event.delta/120), "units")
-            self.command_txt.yview_scroll((event.delta/120), "units")
-            self.message_txt.yview_scroll((event.delta/120), "units")
+            self.time_txt.yview_scroll((event.delta / 120), "units")
+            self.sender_txt.yview_scroll((event.delta / 120), "units")
+            self.command_txt.yview_scroll((event.delta / 120), "units")
+            self.message_txt.yview_scroll((event.delta / 120), "units")
         return "break"
 
     def add_new_line(self, the_time, the_sender, the_command, the_message):
         t = time.strftime("%H:%M:%S", time.localtime(the_time))
         self.time_txt.configure(state=NORMAL)
-        self.time_txt.insert(END, t+"\n", "a")
+        self.time_txt.insert(END, t + "\n", "a")
         self.time_txt.configure(state=DISABLED)
         self.sender_txt.configure(state=NORMAL)
-        self.sender_txt.insert(END, the_sender+"\n", "a")
+        self.sender_txt.insert(END, the_sender + "\n", "a")
         self.sender_txt.configure(state=DISABLED)
         self.command_txt.configure(state=NORMAL)
-        self.command_txt.insert(END, the_command+"\n", "a")
+        self.command_txt.insert(END, the_command + "\n", "a")
         self.command_txt.configure(state=DISABLED)
         self.message_txt.configure(state=NORMAL)
-        self.message_txt.insert(END, the_message+"\n", "a")
+        self.message_txt.insert(END, the_message + "\n", "a")
         self.message_txt.configure(state=DISABLED)
 
         self.time_txt.see('end')

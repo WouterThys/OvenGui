@@ -4,6 +4,7 @@ from Tkinter import *
 import sys
 
 import MainMenu
+from gui.BottomPanel import BottomPanel
 from gui.ControlPanel import ControlPanel
 from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog
 from gui.FeedBackPanel import FeedBackPanel
@@ -27,20 +28,26 @@ class MainScreen:
         self.master.grid_rowconfigure(1, weight=1)
         self.master.grid_rowconfigure(2, weight=1)
         self.master.grid_rowconfigure(3, weight=1)
+        self.master.grid_rowconfigure(4, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_columnconfigure(1, weight=1)
 
+        # Bottom panel
+        self.bottom_panel = BottomPanel(master)
+        self.bottom_panel.grid(row=4, column=0, columnspan=2, sticky='nsew')
+
         # Graph panel
-        self.graph = GraphPanel(master)
+        self.graph = GraphPanel(master, self.bottom_panel)
         self.graph.grid(row=0, rowspan=3, column=0, sticky='nsew')
 
         # Control panel
-        self.control_panel = ControlPanel(master)
+        self.control_panel = ControlPanel(master, self.bottom_panel)
         self.control_panel.start_btn.configure(command=self.on_start_btn_click)
         self.control_panel.stop_btn.configure(command=self.on_stop_btn_click)
         self.control_panel.graph_btn.configure(command=self.on_graph_btn_click)
         self.control_panel.enable_start_btn(False)
         self.control_panel.enable_stop_btn(False)
+        self.control_panel.enable_graph_btn(True)
         self.control_panel.grid(row=0, column=1, sticky='nsew')
 
         # Feed back panel
@@ -51,7 +58,7 @@ class MainScreen:
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
 
         # Settings panel
-        self.settings_panel = SettingsPanel(master)
+        self.settings_panel = SettingsPanel(master, self.bottom_panel)
         self.settings_panel.uart_settings_btn.configure(command=self.on_uart_settings_btn_click)
         self.settings_panel.pid_settings_btn.configure(command=self.on_pid_settings_btn_click)
         self.settings_panel.graph_settings_btn.configure(command=self.on_graph_settings_btn_click)
@@ -60,9 +67,6 @@ class MainScreen:
         # Message panel
         self.message_panel = MessagePanel(master)
         self.message_panel.grid(row=3, column=0, sticky='nsew')
-
-        # Ask for the serial settings
-        # SerialSettingsDialog(self.master, serial_interface)
 
         master.update()
         master.minsize(master.winfo_width(), master.winfo_height())
@@ -73,6 +77,7 @@ class MainScreen:
         """
         self.feedback_panel.set_target_value(self.manager.pid.set_point)
         self.feedback_panel.set_sense_value(self.manager.temp_real)
+        self.feedback_panel.set_error_value(self.manager.pid.error)
         self.feedback_panel.set_pid_value(self.manager.pid.output)
 
         msg = self.manager.last_message
@@ -86,18 +91,21 @@ class MainScreen:
     def show_pic_info(self):
         PicInfoDialog(self.master, self.pic_info)
 
+    def forced_stop(self):
+        self.on_stop_btn_click()
+
     """
     Events
     """
 
     def on_start_btn_click(self):
-        self.manager.start_reading_thread()
+        self.manager.start_writing_thread()
         self.control_panel.enable_start_btn(False)
         self.control_panel.enable_stop_btn(True)
         self.control_panel.enable_graph_btn(False)
 
     def on_stop_btn_click(self):
-        self.manager.stop_reading_thread()
+        self.manager.stop_writing_thread()
         self.control_panel.enable_start_btn(True)
         self.control_panel.enable_stop_btn(False)
         self.control_panel.enable_graph_btn(True)

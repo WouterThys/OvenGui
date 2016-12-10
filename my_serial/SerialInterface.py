@@ -90,6 +90,9 @@ class SerialInterface:
                 self.ser.flushOutput()
             except Exception as e:
                 tkMessageBox.showerror("Serial error", "Error clearing input buffer: "+e.message)
+        else:
+            tkMessageBox.showerror("Serial error", "Serial port is not open")
+            return -1
 
     def serial_destroy(self):
         if self.ser.isOpen():
@@ -99,6 +102,8 @@ class SerialInterface:
                 self.ser.close()
             except Exception as e:
                 tkMessageBox.showerror("Serial error", "Error closing serial: " + e.message)
+        else:
+            tkMessageBox.showerror("Serial error", "Serial port is not open")
 
     def serial_read(self):
         if self.ser.isOpen():
@@ -119,6 +124,9 @@ class SerialInterface:
             except Exception as e:
                 tkMessageBox.showerror("Serial error", "Error reading: "+e.message)
                 return -1
+        else:
+            tkMessageBox.showerror("Serial error", "Serial port is not open")
+            return -1
 
     def serial_write(self, command, message):
         if self.ser.isOpen():
@@ -128,3 +136,7 @@ class SerialInterface:
             msg = PICMessage("Compy")
             txt = msg.construct("message", command, message, self.id)
             self.ser.write(txt+'\r\n')
+            return self.id
+        else:
+            tkMessageBox.showerror("Serial error", "Serial port is not open")
+            return -1
