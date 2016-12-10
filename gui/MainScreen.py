@@ -1,3 +1,4 @@
+import os
 import tkMessageBox
 from Tkinter import *
 import sys
@@ -6,6 +7,7 @@ import MainMenu
 from gui.ControlPanel import ControlPanel
 from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog
 from gui.FeedBackPanel import FeedBackPanel
+from gui.SettingsPanel import SettingsPanel
 from gui.graphs import Graph
 from my_serial.PICClasses import PICInfo
 
@@ -42,6 +44,13 @@ class MainScreen:
         self.feedback_panel.set_ki_value(self.manager.ki)
         self.feedback_panel.set_kd_value(self.manager.kd)
 
+        # Settings panel
+        self.settings_panel = SettingsPanel(master)
+        self.settings_panel.uart_settings_btn.configure(command=self.on_uart_settings_btn_click)
+        self.settings_panel.pid_settings_btn.configure(command=self.on_pid_settings_btn_click)
+        self.settings_panel.graph_settings_btn.configure(command=self.on_graph_settings_btn_click)
+        self.settings_panel.pack(side=TOP, fill=BOTH, expand=1)
+
         # Ask for the serial settings
         #SerialSettingsDialog(self.master, serial_interface)
 
@@ -77,9 +86,25 @@ class MainScreen:
         fd = FileDialog(self.master)
         graph_file = fd.open_file_name()
         if graph_file:
-            if self.graph.set_target_graph(graph_file):
-                self.control_panel.enable_start_btn(True)
-                self.control_panel.enable_stop_btn(False)
-                self.control_panel.enable_graph_btn(True)
+            if os.path.isfile:
+                if self.graph.set_target_graph(graph_file):
+                    self.manager.temp_target = self.graph.y_target
+                    self.control_panel.enable_start_btn(True)
+                    self.control_panel.enable_stop_btn(False)
+                    self.control_panel.enable_graph_btn(True)
+                else:
+                    tkMessageBox.showerror("Error reading file",
+                                           "An error occurred because the korean children did not understand it, "
+                                           "check if the file was correct...")
             else:
-                tkMessageBox.showerror("Error reading file", "An error occurred because the korean children did not understand it, check if the file was correct...")
+                tkMessageBox.showerror("Error file type",
+                                       "We have decided this is not a valid file type...")
+
+    def on_uart_settings_btn_click(self):
+        SerialSettingsDialog(self.master, self.manager.my_serial)
+
+    def on_pid_settings_btn_click(self):
+        print 'uart settings'
+
+    def on_graph_settings_btn_click(self):
+        print 'uart settings'

@@ -32,6 +32,7 @@ class Graph:
         self.canvas = FigureCanvasTkAgg(self.f, master=master)
         self.canvas.show()
         self.canvas.get_tk_widget().pack(side=Tk.BOTTOM, fill=Tk.BOTH, expand=1)
+        self.f.tight_layout()
 
         # self.toolbar = NavigationToolbar2TkAgg(self.canvas, master)
         # self.toolbar.update()

@@ -93,9 +93,9 @@ class FileDialog:
         # define options for opening or saving a file
         self.file_opt = options = {}
         options['defaultextension'] = '.txt'
-        options['filetypes'] = [('all files', '.*'), ('text files', '.txt')]
+        options['filetypes'] = [('Text files', '.txt'),('All files', '.*')]
         options['initialdir'] = initial_path
-        options['initialfile'] = 'graph.txt'
+        #options['initialfile'] = 'graph.txt'
         options['parent'] = self.master
         options['title'] = 'Select a file'
 

@@ -50,10 +50,6 @@ class FeedBackPanel(Frame):
         self.kd_txt.set("Kd: ...")
 
     """
-    Button click events
-    """
-
-    """
     Entry values
     """
     def set_target_value(self, value):

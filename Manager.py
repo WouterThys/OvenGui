@@ -10,23 +10,23 @@ from my_serial.ReadThread import ReadThread
 
 TIME_INTERVAL = 1 # Time interval in seconds
 
-TARGET_Y = []
-TARGET_X = []
-for i in range(0,350):
-    TARGET_X.append(i)
-    if i < 110:
-        TARGET_Y.append((180.0/110.0)*float(i))
-    if (i >= 110) and (i < 200):
-        TARGET_Y.append(180)
-    if (i >= 200) and (i < 250):
-        TARGET_Y.append((120.0/50.0)*(float(i)-200) + 180)
-    if (i >= 250) and (i < 260):
-        TARGET_Y.append(300)
-    if i >= 260:
-        TARGET_Y.append(TARGET_Y[-1]-2)
-
-target = (TARGET_X, TARGET_Y)
-print TARGET_Y
+# TARGET_Y = []
+# TARGET_X = []
+# for i in range(0,350):
+#     TARGET_X.append(i)
+#     if i < 110:
+#         TARGET_Y.append((180.0/110.0)*float(i))
+#     if (i >= 110) and (i < 200):
+#         TARGET_Y.append(180)
+#     if (i >= 200) and (i < 250):
+#         TARGET_Y.append((120.0/50.0)*(float(i)-200) + 180)
+#     if (i >= 250) and (i < 260):
+#         TARGET_Y.append(300)
+#     if i >= 260:
+#         TARGET_Y.append(TARGET_Y[-1]-2)
+#
+# target = (TARGET_X, TARGET_Y)
+# print TARGET_Y
 
 
 class Manager:
@@ -43,8 +43,8 @@ class Manager:
 
         # Create local instances
         self.my_settings = Settings()
-        self.serial = SerialInterface()
-        self.serial.configure_serial(self.my_settings.serial_settings)
+        self.my_serial = SerialInterface()
+        self.my_serial.configure_serial(self.my_settings.serial_settings)
 
         # PID values
         self.kp = 20
@@ -54,20 +54,21 @@ class Manager:
         self.pid.dt = TIME_INTERVAL
         self.cnt = 0
         self.temp_real = 0
+        self.temp_target = []
 
         # Create the queue and event
         self.queue = Queue.Queue()
         self.read_event = threading.Event()
         self.write_event = threading.Event()
         # Set up the GUI
-        self.gui = MainScreen(master, self.my_settings, self.serial, self, self.end_application)
+        self.gui = MainScreen(master, self.my_settings, self.my_serial, self, self.end_application)
 
         # Set up the threads to do asynchronous I/O.
-        self.reading_thread = ReadThread(self.read_event, self.queue, self.serial)
+        self.reading_thread = ReadThread(self.read_event, self.queue, self.my_serial)
         self.reading_thread.setDaemon(True)
         self.reading_thread.start()
 
-        self.writing_thread = WriteThread(self.write_event, self.serial)
+        self.writing_thread = WriteThread(self.write_event, self.my_serial)
         self.writing_thread.setDaemon(True)
 
         # Start the periodic call in the GUI to check if the queue contains anything, start serial
@@ -94,7 +95,7 @@ class Manager:
                     try:
                         self.temp_real = float(val)
                         self.temp_real = self.digital_to_temp(self.temp_real)
-                        self.pid.set_point = TARGET_Y[self.cnt]  # Point it should be
+                        self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
                         self.cnt += 1
                         pid_output = self.pid.do_work(self.temp_real)
                         self.gui.graph.update(self.temp_real, pid_output)
@@ -116,7 +117,7 @@ class Manager:
         self.writing_thread.join(5)
 
     def end_application(self):
-        self.serial.serial_destroy()
+        self.my_serial.serial_destroy()
         self.master.quit()
         self.read_event.set()
         self.reading_thread.join(5)
