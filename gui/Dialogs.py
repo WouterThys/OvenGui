@@ -5,6 +5,9 @@ import tkSimpleDialog
 from Tkinter import *
 
 import serial
+
+from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
+
 from my_serial.SerialInterface import SerialInterface
 
 
@@ -75,8 +78,8 @@ class PIDSettingsDialog(tkSimpleDialog.Dialog):
         tkSimpleDialog.Dialog.__init__(self, master, "PID settings")
 
     def body(self, master):
-        Label(master, text="Ki").grid(row=0, sticky=W)
-        Label(master, text="Kp").grid(row=1, sticky=W)
+        Label(master, text="Kp").grid(row=0, sticky=W)
+        Label(master, text="Ki").grid(row=1, sticky=W)
         Label(master, text="Kd").grid(row=2, sticky=W)
         Label(master, text="dt").grid(row=3, sticky=W)
         Label(master, text="WU").grid(row=4, sticky=W)
@@ -110,11 +113,11 @@ class PIDSettingsDialog(tkSimpleDialog.Dialog):
     def validate(self):
         try:
             # result = dict([('parity', pari), ('baudrate', baud), ('bytesize', bits), ('stopbits', stop)])
-            self.pid.Kp= int(self.kp_ent.get())
-            self.pid.Ki= int(self.ki_ent.get())
-            self.pid.Kd= int(self.kd_ent.get())
-            self.pid.dt= int(self.dt_ent.get())
-            self.pid.wu= int(self.wu_ent.get())
+            self.pid.Kp= float(self.kp_ent.get())
+            self.pid.Ki= float(self.ki_ent.get())
+            self.pid.Kd= float(self.kd_ent.get())
+            self.pid.dt= float(self.dt_ent.get())
+            self.pid.wu= float(self.wu_ent.get())
             return 1
         except Exception as e:
             tkMessageBox.showerror(
@@ -185,3 +188,17 @@ class FileDialog:
 
     def ask_directory(self):
         return tkFileDialog.askdirectory(**self.dir_opt)
+
+
+class GraphOptionsDialog(tkSimpleDialog.Dialog):
+    def __init__(self, master, canvas):
+        self.canvas = canvas
+        tkSimpleDialog.Dialog.__init__(self, master, "PID settings")
+
+    def body(self, master):
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas, master)
+        self.toolbar.update()
+        self.canvas._tkcanvas.pack(fill=BOTH, expand=1)
+
+    def apply(self):
+        pass

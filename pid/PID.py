@@ -17,7 +17,7 @@ class PID:
     # Integrator part
     def integrate(self, error):
         i = self.integrator + error*self.dt
-        if i > self.windup:
+        if abs(i) > self.windup:
             return 0
         else:
             self.integrator += (error*self.dt)

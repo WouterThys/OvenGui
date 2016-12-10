@@ -1,6 +1,7 @@
 import threading
 import time
 import tkMessageBox
+from PICClasses import COMMAND_TYPES, MESSAGE_TYPES
 
 
 class WriteThread(threading.Thread):
@@ -23,7 +24,7 @@ class WriteThread(threading.Thread):
         while not self.event.is_set():
             start_time = time.time()
             if self.serial_interface.isReady:
-                ack_id = self.serial_interface.serial_write("AR", "")
+                ack_id = self.serial_interface.serial_write(COMMAND_TYPES.get("Analog read"), "")
                 if len(self.to_be_ack) > 4:
                     # 5 Values not acknowledged...
                     self.event.set()

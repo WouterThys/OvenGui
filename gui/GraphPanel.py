@@ -2,6 +2,9 @@ from Tkinter import *
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+
+from gui.Dialogs import GraphOptionsDialog
+
 matplotlib.use('TkAgg')
 
 
@@ -41,13 +44,16 @@ class GraphPanel(Frame):
             self.bind("<Enter>", lambda event:self.display_info(event, 'Select a graph'))
             self.bind("<Leave>", lambda event: self.remove_info(event, ''))
 
-        # self.toolbar = NavigationToolbar2TkAgg(self.canvas, master)
-        # self.toolbar.update()
-        # self.canvas._tkcanvas.pack(side=Tk.BOTTOM, fill=Tk.BOTH, expand=1)
+
         def on_mouse_motion(event):
             if (info_panel is not None) and (self.is_target_set):
                 self.display_info(event,"")
         self.canvas.mpl_connect('motion_notify_event', on_mouse_motion)
+
+        def on_button_release_event(event):
+            GraphOptionsDialog(self.master, self.canvas)
+        self.canvas.mpl_connect('button_release_event', on_button_release_event)
+
 
     # def on_key_event(self, event):
     #     print("you pressed %s" % event.key)

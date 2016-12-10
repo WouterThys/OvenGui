@@ -1,12 +1,13 @@
 import time
 
+MESSAGE_TYPES = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]")])
+COMMAND_TYPES = dict([("Initialize", "IN"), ("Analog read", "AR"), ("Get name", "GN")])
 
 class PICMessage:
     def __init__(self, name):
         # Message values
         self.start_char = '&'
         self.stop_char = '$'
-        self.message_type = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]")])
         self.my_name = name
 
         # Message variables
@@ -30,11 +31,11 @@ class PICMessage:
         :return: string with the constructed message
         """
         send_txt = ""
-        if self.message_type.__contains__(type):
+        if MESSAGE_TYPES.__contains__(type):
             if id > 9:
                 id = 0
             self.id = id
-            send_txt = self.start_char + self.message_type.get(
+            send_txt = self.start_char + MESSAGE_TYPES.get(
                 type) + ":" + self.my_name + ":" + command + ":" + message + ":" + str(id) + self.stop_char
         print "Output: "+send_txt
         return send_txt
@@ -67,7 +68,7 @@ class PICMessage:
         # Check message type
         try:
             t = input_msg[0:3]
-            if t == self.message_type.get("message"):
+            if t == MESSAGE_TYPES.get("message"):
                 input_msg = input_msg[3:]
                 m = input_msg.split(":")
                 self.type = "message"
@@ -77,7 +78,7 @@ class PICMessage:
                 self.message_time = time.time()
                 self.write_to_file()
                 return 1
-            elif t == self.message_type.get("ack"):
+            elif t == MESSAGE_TYPES.get("ack"):
                 input_msg = input_msg[3:]
                 self.message = input_msg
                 self.message_time = time.time()

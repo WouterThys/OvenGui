@@ -6,7 +6,7 @@ import sys
 import MainMenu
 from gui.BottomPanel import BottomPanel
 from gui.ControlPanel import ControlPanel
-from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog
+from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog, PIDSettingsDialog
 from gui.FeedBackPanel import FeedBackPanel
 from gui.SettingsPanel import SettingsPanel
 from gui.MessagePanel import MessagePanel
@@ -132,7 +132,13 @@ class MainScreen:
         SerialSettingsDialog(self.master, self.manager.my_serial)
 
     def on_pid_settings_btn_click(self):
-        print 'uart settings'
+        if self.control_panel.stop_btn.cget('state') == 'disabled':
+            PIDSettingsDialog(self.master, self.manager.pid)
+            self.feedback_panel.set_kp_value(self.manager.pid.Kp)
+            self.feedback_panel.set_ki_value(self.manager.pid.Ki)
+            self.feedback_panel.set_kd_value(self.manager.pid.Kd)
+        else:
+            tkMessageBox.showwarning("Warning","First stop running before change PID values")
 
     def on_graph_settings_btn_click(self):
         print 'uart settings'
