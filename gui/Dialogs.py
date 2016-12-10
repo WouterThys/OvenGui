@@ -1,3 +1,5 @@
+import os
+import tkFileDialog
 import tkMessageBox
 import tkSimpleDialog
 from Tkinter import *
@@ -78,3 +80,50 @@ class PicInfoDialog(tkSimpleDialog.Dialog):
 
         Entry(master, text=self.pic_info.pic_name).grid(row=0, column=1)
         Entry(master, text=self.pic_info.pic_last_communication).grid(row=1, column=1)
+
+
+class FileDialog:
+    def __init__(self, master):
+        self.master = master
+
+        initial_path = sys.executable
+        if sys.platform.startswith('win'):
+            initial_path = os.path.splitdrive(sys.executable)
+
+        # define options for opening or saving a file
+        self.file_opt = options = {}
+        options['defaultextension'] = '.txt'
+        options['filetypes'] = [('all files', '.*'), ('text files', '.txt')]
+        options['initialdir'] = initial_path
+        options['initialfile'] = 'graph.txt'
+        options['parent'] = self.master
+        options['title'] = 'Select a file'
+
+        # defining options for opening a directory
+        self.dir_opt = options = {}
+        options['initialdir'] = initial_path
+        options['mustexist'] = False
+        options['parent'] = self.master
+        options['title'] = 'Select a directory'
+
+    def open_file(self):
+        return tkFileDialog.askopenfile(mode='r', **self.file_opt)
+
+    def open_file_name(self):
+        # Get file name
+        filename = tkFileDialog.askopenfilename(**self.file_opt)
+        # if filename:
+        #     return open(filename, 'r')
+        return filename
+
+    def save_file(self):
+        return tkFileDialog.asksaveasfile(mode='w', **self.file_opt)
+
+    def save_file_name(self):
+        filename = tkFileDialog.asksaveasfilename(**self.file_opt)
+        # if filename:
+        #     return open(filename, 'w')
+        return filename
+
+    def ask_directory(self):
+        return tkFileDialog.askdirectory(**self.dir_opt)

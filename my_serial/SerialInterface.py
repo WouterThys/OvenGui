@@ -8,13 +8,11 @@ FAIL = -1
 class SerialInterface:
     def __init__(self):
         self.isReady = False
-        self.ser = serial.Serial()
-        self.configure_serial(None)
-        self.serial_clear()
         self.id = 0
 
-    def configure_serial(self, settings):
-        if settings is None:
+    def configure_serial(self, ser_set):
+        self.ser = serial.Serial()
+        if ser_set is None:
             try:
                 if self.ser.isOpen():
                     self.ser.close()
@@ -34,31 +32,21 @@ class SerialInterface:
                 tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
 
         else:
-            s = settings.serial_settings
             try:
                 if self.ser.isOpen():
                     self.ser.close()
-                # self.ser = serial.Serial(
-                #     port=s.com_port,
-                #     baudrate=s.baud_rate,
-                #     parity=s.parity,
-                #     stopbits=s.stop_bits,
-                #     bytesize=s.data_bits
-                # )
                 self.ser = serial.Serial(
-                    port='/dev/ttyUSB0',
-                    baudrate=9600,
-                    parity=serial.PARITY_NONE,
-                    stopbits=serial.STOPBITS_ONE,
-                    bytesize=serial.EIGHTBITS,
-                    timeout=5
+                    port=ser_set.com_port,
+                    baudrate=ser_set.baud_rate,
+                    parity=ser_set.parity,
+                    stopbits=ser_set.stop_bits,
+                    bytesize=ser_set.data_bits
                 )
             except ValueError as e:
                 tkMessageBox.showerror("Serial error", "Invalid value: "+e.message)
             except serial.SerialException as e:
                 tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
         self.isReady = self.ser.isOpen()
-        print self.ser.getSettingsDict()
 
     @staticmethod
     def serial_ports():
@@ -96,43 +84,47 @@ class SerialInterface:
             pass
 
     def serial_clear(self):
-        try:
-            self.ser.flushInput()
-            self.ser.flushOutput()
-        except Exception as e:
-            tkMessageBox.showerror("Serial error", "Error clearing input buffer: "+e.message)
+        if self.ser.isOpen():
+            try:
+                self.ser.flushInput()
+                self.ser.flushOutput()
+            except Exception as e:
+                tkMessageBox.showerror("Serial error", "Error clearing input buffer: "+e.message)
 
     def serial_destroy(self):
-        try:
-            self.ser.flushInput()
-            self.ser.flushOutput()
-            self.ser.close()
-        except Exception as e:
-            tkMessageBox.showerror("Serial error", "Error closing serial: " + e.message)
+        if self.ser.isOpen():
+            try:
+                self.ser.flushInput()
+                self.ser.flushOutput()
+                self.ser.close()
+            except Exception as e:
+                tkMessageBox.showerror("Serial error", "Error closing serial: " + e.message)
 
     def serial_read(self):
-        try:
-            if self.isReady:
-                out = ""
-                c = ''
-                cnt = 0
-                while c != '$':
-                    c = self.ser.read(1)
-                    if not c:
-                        return FAIL
-                    out += c
-                    cnt += 1
-                    if cnt > 500:  # Takes way to long before stop character came
-                        return FAIL
-                return str(out)
-        except Exception as e:
-            tkMessageBox.showerror("Serial error", "Error reading: "+e.message)
-            return -1
+        if self.ser.isOpen():
+            try:
+                if self.isReady:
+                    out = ""
+                    c = ''
+                    cnt = 0
+                    while c != '$':
+                        c = self.ser.read(1)
+                        if not c:
+                            return FAIL
+                        out += c
+                        cnt += 1
+                        if cnt > 500:  # Takes way to long before stop character came
+                            return FAIL
+                    return str(out)
+            except Exception as e:
+                tkMessageBox.showerror("Serial error", "Error reading: "+e.message)
+                return -1
 
     def serial_write(self, command, message):
-        self.id += 1
-        if self.id >= 9:
-            self.id = 0
-        msg = PICMessage("Compy")
-        txt = msg.construct("message", command, message, self.id)
-        self.ser.write(txt+'\r\n')
+        if self.ser.isOpen():
+            self.id += 1
+            if self.id >= 9:
+                self.id = 0
+            msg = PICMessage("Compy")
+            txt = msg.construct("message", command, message, self.id)
+            self.ser.write(txt+'\r\n')

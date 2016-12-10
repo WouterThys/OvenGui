@@ -1,5 +1,5 @@
- #from values.Values import *
 import serial
+
 
 class Settings:
     def __init__(self):
@@ -9,7 +9,7 @@ class Settings:
 
 class SerialSettings:
     def __init__(self):
-        self.com_port = ""
+        self.com_port ='/dev/ttyUSB0'
         self.baud_rate = serial.Serial.BAUDRATES[12]
         self.data_bits = serial.Serial.BYTESIZES[3]
         self.stop_bits = serial.Serial.STOPBITS[0]

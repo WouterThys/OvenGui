@@ -1,11 +1,12 @@
 import threading
 import Queue
 
+from my_serial.WriteThread import WriteThread
 from pid.PID import PID
 from settings.Settings import Settings
 from my_serial.SerialInterface import SerialInterface
 from gui.MainScreen import MainScreen
-from my_serial.SerialThread import SerialThread
+from my_serial.ReadThread import ReadThread
 
 TIME_INTERVAL = 1 # Time interval in seconds
 
@@ -24,7 +25,8 @@ for i in range(0,350):
     if i >= 260:
         TARGET_Y.append(TARGET_Y[-1]-2)
 
-TARGET = (TARGET_X, TARGET_Y)
+target = (TARGET_X, TARGET_Y)
+print TARGET_Y
 
 
 class Manager:
@@ -40,8 +42,9 @@ class Manager:
         self.master = master
 
         # Create local instances
-        self.settings = Settings()
+        self.my_settings = Settings()
         self.serial = SerialInterface()
+        self.serial.configure_serial(self.my_settings.serial_settings)
 
         # PID values
         self.kp = 20
@@ -54,18 +57,21 @@ class Manager:
 
         # Create the queue and event
         self.queue = Queue.Queue()
-        self.event = threading.Event()
+        self.read_event = threading.Event()
+        self.write_event = threading.Event()
         # Set up the GUI
-        self.gui = MainScreen(master, self.queue, self.settings, self.serial, self, self.end_application)
+        self.gui = MainScreen(master, self.my_settings, self.serial, self, self.end_application)
 
-        # Set up the thread to do asynchronous I/O. (more should prolly be done here)
-        self.thread1 = SerialThread(self.event, self.queue, self.serial)
-        self.thread1.setDaemon(True)
-        self.thread1.start()
+        # Set up the threads to do asynchronous I/O.
+        self.reading_thread = ReadThread(self.read_event, self.queue, self.serial)
+        self.reading_thread.setDaemon(True)
+        self.reading_thread.start()
+
+        self.writing_thread = WriteThread(self.write_event, self.serial)
+        self.writing_thread.setDaemon(True)
 
         # Start the periodic call in the GUI to check if the queue contains anything, start serial
         self.periodic_call()
-        self.serial.configure_serial(self.settings)
 
     def periodic_call(self):
         """
@@ -73,7 +79,7 @@ class Manager:
         """
         self.do_logic()
         self.gui.process_incoming()
-        if self.event.is_set():
+        if self.read_event.is_set():
             # This is the brutal stop of the system. Maybe do some cleanup before actually shutting down
             import sys
             sys.exit(1)
@@ -102,8 +108,18 @@ class Manager:
     def digital_to_temp(self, value):
         return value/10
 
+    def start_reading_thread(self):
+        self.writing_thread.start()
+
+    def stop_reading_thread(self):
+        self.write_event.set()
+        self.writing_thread.join(5)
+
     def end_application(self):
         self.serial.serial_destroy()
         self.master.quit()
-        self.event.set()
-        self.thread1.join(5)
+        self.read_event.set()
+        self.reading_thread.join(5)
+        if not self.write_event.is_set:
+            self.write_event.set()
+            self.writing_thread.join(5)
