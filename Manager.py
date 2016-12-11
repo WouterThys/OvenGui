@@ -105,7 +105,6 @@ class Manager:
             self.gui.forced_stop()
 
         # Check input messages
-        pid_output = 0
         while self.queue.qsize():
             try:
                 self.last_message = self.queue.get(0)
@@ -128,7 +127,8 @@ class Manager:
                     else:
                         pass
                 elif self.last_message.type == "ack":
-                    self.writing_thread.acknowledge(self.last_message.message)
+                    # self.writing_thread.acknowledge(self.last_message.message)
+                    pass
                 else:
                     pass
             except Queue.Empty:
@@ -136,12 +136,12 @@ class Manager:
 
         # Handle PID values
         change = False
-        if pid_output > 0:
+        if self.pid.output > 0:
             if (self.heater == 'OFF') or (self.fan == 'ON'):
                 change = True
             self.heater = 'ON'
             self.fan = 'OFF'
-        elif pid_output < 0:
+        elif self.pid.output < 0:
             if (self.heater == 'ON') or (self.fan == 'OFF'):
                 change = True
             self.heater = 'OFF'
@@ -153,8 +153,9 @@ class Manager:
             self.fan = 'OFF'
 
         if change:
-            self.my_serial.serial_write("HE", self.heater)
-            self.my_serial.serial_write("FA", self.fan)
+            # self.my_serial.serial_write("HE", self.heater)
+            # self.my_serial.serial_write("FA", self.fan)
+            pass
 
 
     def digital_to_temp(self, value):
