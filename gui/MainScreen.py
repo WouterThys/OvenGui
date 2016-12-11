@@ -28,17 +28,17 @@ class MainScreen:
         self.master.grid_rowconfigure(1, weight=1)
         self.master.grid_rowconfigure(2, weight=1)
         self.master.grid_rowconfigure(3, weight=1)
-        self.master.grid_rowconfigure(4, weight=1)
+        # self.master.grid_rowconfigure(4, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_columnconfigure(1, weight=1)
 
         # Bottom panel
         self.bottom_panel = BottomPanel(master)
-        self.bottom_panel.grid(row=4, column=0, columnspan=2, sticky='nsew')
+        self.bottom_panel.grid(row=3, column=0, columnspan=2, sticky='nsew')
 
         # Graph panel
         self.graph = GraphPanel(master, self.bottom_panel)
-        self.graph.grid(row=0, rowspan=3, column=0, sticky='nsew')
+        self.graph.grid(row=0, rowspan=2, column=0, sticky='nsew')
 
         # Control panel
         self.control_panel = ControlPanel(master, self.bottom_panel)
@@ -58,18 +58,20 @@ class MainScreen:
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
 
         # Settings panel
-        self.settings_panel = SettingsPanel(master, self.bottom_panel)
-        self.settings_panel.uart_settings_btn.configure(command=self.on_uart_settings_btn_click)
-        self.settings_panel.pid_settings_btn.configure(command=self.on_pid_settings_btn_click)
-        self.settings_panel.graph_settings_btn.configure(command=self.on_graph_settings_btn_click)
-        self.settings_panel.grid(row=2, column=1, sticky='nsew')
+        # self.settings_panel = SettingsPanel(master, self.bottom_panel)
+        # self.settings_panel.uart_settings_btn.configure(command=self.on_uart_settings_btn_click)
+        # self.settings_panel.pid_settings_btn.configure(command=self.on_pid_settings_btn_click)
+        # self.settings_panel.graph_settings_btn.configure(command=self.on_graph_settings_btn_click)
+        # self.settings_panel.grid(row=2, column=1, sticky='nsew')
 
         # Message panel
         self.message_panel = MessagePanel(master)
-        self.message_panel.grid(row=3, column=0, sticky='nsew')
+        self.message_panel.grid(row=2, column=0, sticky='nsew')
 
         master.update()
         master.minsize(master.winfo_width(), master.winfo_height())
+
+        print self.feedback_panel.pid_ent.cget("width")
 
     def process_incoming(self):
         """
@@ -79,6 +81,12 @@ class MainScreen:
         self.feedback_panel.set_sense_value(self.manager.temp_real)
         self.feedback_panel.set_error_value(self.manager.pid.error)
         self.feedback_panel.set_pid_value(self.manager.pid.output)
+
+        self.feedback_panel.set_door_state(self.manager.door_state)
+        self.feedback_panel.set_state_state(self.manager.state)
+        self.feedback_panel.set_heater_state(self.manager.heater)
+        self.feedback_panel.set_fan_state(self.manager.fan)
+
 
         msg = self.manager.last_message
         if not msg is None:
@@ -92,17 +100,22 @@ class MainScreen:
         PicInfoDialog(self.master, self.pic_info)
 
     def forced_stop(self):
-        self.on_stop_btn_click()
+        self.control_panel.enable_start_btn(True)
+        self.control_panel.enable_stop_btn(False)
+        self.control_panel.enable_graph_btn(True)
 
     """
     Events
     """
 
     def on_start_btn_click(self):
-        self.manager.start_writing_thread()
-        self.control_panel.enable_start_btn(False)
-        self.control_panel.enable_stop_btn(True)
-        self.control_panel.enable_graph_btn(False)
+        if self.manager.door_state == 'C':
+            self.manager.start_writing_thread()
+            self.control_panel.enable_start_btn(False)
+            self.control_panel.enable_stop_btn(True)
+            self.control_panel.enable_graph_btn(False)
+        else:
+            tkMessageBox.showwarning('Door open', 'Close the oven door before starting...')
 
     def on_stop_btn_click(self):
         self.manager.stop_writing_thread()

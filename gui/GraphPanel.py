@@ -18,8 +18,8 @@ class GraphPanel(Frame):
 
         self.f = Figure()
         self.a = self.f.add_subplot(111)
-        self.a.set_xlabel("Time")
-        self.a.set_ylabel("Temp")
+        self.a.set_xlabel("Time (s)")
+        self.a.set_ylabel("Temp (C)")
 
         self.cnt = 0
         self.y_real = []
@@ -44,20 +44,14 @@ class GraphPanel(Frame):
             self.bind("<Enter>", lambda event:self.display_info(event, 'Select a graph'))
             self.bind("<Leave>", lambda event: self.remove_info(event, ''))
 
-
         def on_mouse_motion(event):
-            if (info_panel is not None) and (self.is_target_set):
+            if (info_panel is not None) and self.is_target_set:
                 self.display_info(event,"")
         self.canvas.mpl_connect('motion_notify_event', on_mouse_motion)
 
-        def on_button_release_event(event):
-            GraphOptionsDialog(self.master, self.canvas)
-        self.canvas.mpl_connect('button_release_event', on_button_release_event)
-
-
-    # def on_key_event(self, event):
-    #     print("you pressed %s" % event.key)
-    #     key_press_handler(event, self.canvas, self.toolbar)
+        # def on_button_release_event(event):
+        #     GraphOptionsDialog(self.master, self.canvas)
+        # self.canvas.mpl_connect('button_release_event', on_button_release_event)
 
     def update_graph(self, value, pid=0):
         self.cnt += INTERVAL
@@ -71,7 +65,7 @@ class GraphPanel(Frame):
         self.pid_line.set_xdata(self.x_pid)
         self.pid_line.set_ydata(self.y_pid)
 
-        self.update_axis()
+        #self.update_axis()
         self.canvas.draw()
 
     def update_axis(self):

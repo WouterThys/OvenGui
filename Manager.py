@@ -46,6 +46,13 @@ class Manager:
         self.my_serial = SerialInterface()
         self.my_serial.configure_serial(self.my_settings.serial_settings)
 
+        # Variables
+        self.door_state = 'C'  # State of the door, open ('O') or closed ('C')
+        self.state = 'N'  # State of the Finite State Machine
+        self.heater = 'OFF'
+        self.fan = 'OFF'
+        self.first_write = True
+
         # PID values
         self.kp = 20
         self.ki = 0.005
@@ -87,12 +94,18 @@ class Manager:
         self.master.after(200, self.periodic_call)
 
     def do_logic(self):
-        # Check if threads still running
+        # Check if threads and inputs
         if self.write_event.is_set():
-            self.writing_thread.join(5)
             self.gui.forced_stop()
+        else:
+            if self.door_state == 'O':
+                self.gui.forced_stop()
+                self.write_event.set()
         if self.read_event.is_set():
             self.gui.forced_stop()
+
+        # Check input messages
+        pid_output = 0
         while self.queue.qsize():
             try:
                 self.last_message = self.queue.get(0)
@@ -108,6 +121,10 @@ class Manager:
                             self.gui.graph.update_graph(self.temp_real, pid_output)
                         except ValueError:
                             pass
+
+                    elif self.last_message.command == "DL":
+                        self.door_state = self.last_message.message
+
                     else:
                         pass
                 elif self.last_message.type == "ack":
@@ -116,6 +133,29 @@ class Manager:
                     pass
             except Queue.Empty:
                 pass
+
+        # Handle PID values
+        change = False
+        if pid_output > 0:
+            if (self.heater == 'OFF') or (self.fan == 'ON'):
+                change = True
+            self.heater = 'ON'
+            self.fan = 'OFF'
+        elif pid_output < 0:
+            if (self.heater == 'ON') or (self.fan == 'OFF'):
+                change = True
+            self.heater = 'OFF'
+            self.fan = 'ON'
+        else:
+            if (self.heater == 'ON') or (self.fan == 'ON'):
+                change = True
+            self.heater = 'OFF'
+            self.fan = 'OFF'
+
+        if change:
+            self.my_serial.serial_write("HE", self.heater)
+            self.my_serial.serial_write("FA", self.fan)
+
 
     def digital_to_temp(self, value):
         return value/10

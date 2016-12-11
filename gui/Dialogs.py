@@ -75,6 +75,13 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
 class PIDSettingsDialog(tkSimpleDialog.Dialog):
     def __init__(self, master, pid):
         self.pid = pid
+
+        self.kp_ent = None
+        self.ki_ent = None
+        self.kd_ent = None
+        self.dt_ent = None
+        self.wu_ent = None
+
         tkSimpleDialog.Dialog.__init__(self, master, "PID settings")
 
     def body(self, master):
