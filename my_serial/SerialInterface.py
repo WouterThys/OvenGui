@@ -4,11 +4,18 @@ from PICClasses import PICMessage
 
 FAIL = -1
 
+WRITE_STATE_CHECK = 1
+WRITE_STATE_WRITE = 2
+WRITE_STATE_ACK = 3
+
 
 class SerialInterface:
     def __init__(self):
         self.isReady = False
-        self.id = 0
+        self.ack_id = 0
+
+        self.write_buffer = []
+        self.can_write = True
 
     def configure_serial(self, ser_set):
         self.ser = serial.Serial()
@@ -92,7 +99,7 @@ class SerialInterface:
                 tkMessageBox.showerror("Serial error", "Error clearing input buffer: "+e.message)
         else:
             tkMessageBox.showerror("Serial error", "Serial port is not open")
-            return -1
+            return FAIL
 
     def serial_destroy(self):
         if self.ser.isOpen():
@@ -105,6 +112,9 @@ class SerialInterface:
         else:
             tkMessageBox.showerror("Serial error", "Serial port is not open")
 
+    """
+        SERIAL READ
+    """
     def serial_read(self):
         if self.ser.isOpen():
             try:
@@ -123,20 +133,61 @@ class SerialInterface:
                     return str(out)
             except Exception as e:
                 tkMessageBox.showerror("Serial error", "Error reading: "+e.message)
-                return -1
+                return FAIL
         else:
             tkMessageBox.showerror("Serial error", "Serial port is not open")
-            return -1
+            return FAIL
 
+    """
+        SERIAL WRITE
+    """
     def serial_write(self, command, message):
         if self.ser.isOpen():
-            self.id += 1
-            if self.id >= 9:
-                self.id = 0
+            if len(self.write_buffer) > 9:
+                return FAIL
+            self.ack_id += 1
+            if self.ack_id >= 9:
+                self.ack_id = 0
             msg = PICMessage("Compy")
-            txt = msg.construct("message", command, message, self.id)
-            self.ser.write(txt+'\r\n')
-            return self.id
+            txt = msg.construct_message("message", command, message, self.ack_id)
+            self.write_buffer.append(txt)
+            if self.can_write:
+                self.check_write_buffer()
+            return self.ack_id
         else:
-            tkMessageBox.showerror("Serial error", "Serial port is not open")
-            return -1
+            return FAIL
+
+    def serial_write_block(self, command, message, count):
+        if self.ser.isOpen():
+            if len(self.write_buffer) > 9:
+                return FAIL
+            self.ack_id += 1
+            if self.ack_id >= 9:
+                self.ack_id = 0
+            msg = PICMessage("Compy")
+            txt = msg.construct_block("block", command, message, count, self.ack_id)
+            self.write_buffer.append(txt)
+            if self.can_write:
+                self.check_write_buffer()
+            return self.ack_id
+        else:
+            return FAIL
+
+
+    def check_write_buffer(self):
+        if len(self.write_buffer) > 0:
+            self.can_write = False
+            self.do_write(self.write_buffer[0])
+        else:
+            self.can_write = True
+
+    def do_write(self, msg):
+        print "Output: "+msg
+        self.ser.write(msg + '\r\n')
+
+    def acknowledge(self, ack_id):
+        for msg in self.write_buffer:
+            if msg[-2] == ack_id:
+                self.write_buffer.remove(msg)
+                self.can_write = True
+                self.check_write_buffer()

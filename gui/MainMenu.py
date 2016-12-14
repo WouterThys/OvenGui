@@ -23,6 +23,8 @@ class MainMenu:
         settings_menu = Menu(menu)
         menu.add_cascade(label="Settings", menu=settings_menu)
         settings_menu.add_command(label="Serial", command=self.menu_settings_serial)
+        settings_menu.add_command(label="Pid", command=self.menu_settings_pid)
+        settings_menu.add_command(label="Graph", command=self.menu_settings_graph)
 
     def menu_main_save(self):
         tkMessageBox.showinfo("Save", "Saved session!")
@@ -31,4 +33,11 @@ class MainMenu:
         self.end_command()
 
     def menu_settings_serial(self):
+        SerialSettingsDialog(self.parent, self.serial)
+
+
+    def menu_settings_pid(self):
+        SerialSettingsDialog(self.parent, self.serial)
+
+    def menu_settings_graph(self):
         SerialSettingsDialog(self.parent, self.serial)

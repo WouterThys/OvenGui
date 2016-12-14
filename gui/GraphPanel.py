@@ -3,17 +3,11 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from gui.Dialogs import GraphOptionsDialog
-
 matplotlib.use('TkAgg')
 
 
-INTERVAL = 1
-MIN = 60
-
-
 class GraphPanel(Frame):
-    def __init__(self, master, info_panel, *args, **kwargs):
+    def __init__(self, master, info_panel, interval, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
 
         self.f = Figure()
@@ -22,6 +16,8 @@ class GraphPanel(Frame):
         self.a.set_ylabel("Temp (C)")
 
         self.cnt = 0
+        self.interval = interval
+
         self.y_real = []
         self.x_real = []
         self.y_target = []
@@ -54,7 +50,7 @@ class GraphPanel(Frame):
         # self.canvas.mpl_connect('button_release_event', on_button_release_event)
 
     def update_graph(self, value, pid=0):
-        self.cnt += INTERVAL
+        self.cnt += self.interval
         self.x_real.append(self.cnt)
         self.y_real.append(value)
         self.x_pid.append(self.cnt)
@@ -84,7 +80,7 @@ class GraphPanel(Frame):
                         for val in current_line:
                             y_vals.append(float(val.strip()))
                             x_vals.append(float(cnt))
-                            cnt += 1
+                            cnt += self.interval
 
             except Exception as e:
                 print e.message

@@ -1,6 +1,6 @@
 import time
 
-MESSAGE_TYPES = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]")])
+MESSAGE_TYPES = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]"), ("block", "[B]")])
 COMMAND_TYPES = dict([("Initialize", "IN"), ("Analog read", "AR"), ("Get name", "GN")])
 
 class PICMessage:
@@ -16,28 +16,43 @@ class PICMessage:
         self.command = ""  # Command of the message
         self.message = ""  # Message itself
         self.type = "" # Type of the message
-        self.id = 0  # An id to add to the message, that will get acknowledged by the receiver if everything is ok
+        self.ack_id = 0  # An id to add to the message, that will get acknowledged by the receiver if everything is ok
 
         # Info about PIC
         self.pic_info = PICInfo
 
-    def construct(self, type, command, message, id):
+    def construct_message(self, type, command, message, ack_id):
         """
         Construct a message.
         :param type: type of the message as string ("message", "register", "ack")
         :param command: a command to send to other device
         :param message: the message
-        :param id: id number of the message
+        :param ack_id: id number of the message
         :return: string with the constructed message
         """
         send_txt = ""
         if MESSAGE_TYPES.__contains__(type):
-            if id > 9:
-                id = 0
-            self.id = id
+            if ack_id > 9:
+                ack_id = 0
+            self.ack_id = ack_id
             send_txt = self.start_char + MESSAGE_TYPES.get(
-                type) + ":" + self.my_name + ":" + command + ":" + message + ":" + str(id) + self.stop_char
-        print "Output: "+send_txt
+                type) + ":" + self.my_name + ":"+ str(1) +":" + command + ":" + message + ":" + str(ack_id) + self.stop_char
+        return send_txt
+
+    def construct_block(self, type, command, message, length, ack_id):
+        send_txt = ""
+        if MESSAGE_TYPES.__contains__(type):
+            if ack_id > 9:
+                ack_id = 0
+            self.ack_id = ack_id
+            send_txt = self.start_char + MESSAGE_TYPES.get(type) + ":" + self.my_name + ":"+ str(length) +":"
+
+            cnt = 0
+            for c in command:
+                send_txt += c + ":" + message[cnt] + ":"
+                cnt += 1
+
+            send_txt = send_txt + str(ack_id) + self.stop_char
         return send_txt
 
     def convert(self, input_msg):

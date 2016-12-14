@@ -1,5 +1,6 @@
 import threading
 import Queue
+import tkMessageBox
 
 from my_serial.WriteThread import WriteThread
 from pid.PID import PID
@@ -64,18 +65,18 @@ class Manager:
         self.temp_target = []
 
         # Create the queue and event
-        self.queue = Queue.Queue()
+        self.read_queue = Queue.Queue()
         self.read_event = threading.Event()
         self.write_event = threading.Event()
         self.last_message = None
         # Set up the GUI
-        self.gui = MainScreen(master, self.my_settings, self.my_serial, self, self.end_application)
+        self.gui = MainScreen(master, self.my_settings, self.my_serial, self, TIME_INTERVAL, self.end_application)
 
         # Set up the threads to do asynchronous I/O.
-        self.reading_thread = ReadThread(self.read_event, self.queue, self.my_serial)
+        self.reading_thread = ReadThread(self.read_event, self.read_queue, self.my_serial)
         self.reading_thread.setDaemon(True)
         self.reading_thread.start()
-        self.writing_thread = WriteThread(self.write_event, self.my_serial)
+        self.writing_thread = WriteThread(self.write_event, self.my_serial, TIME_INTERVAL)
         self.writing_thread.setDaemon(True)
 
         # Start the periodic call in the GUI to check if the queue contains anything, start serial
@@ -105,9 +106,9 @@ class Manager:
             self.gui.forced_stop()
 
         # Check input messages
-        while self.queue.qsize():
+        while self.read_queue.qsize():
             try:
-                self.last_message = self.queue.get(0)
+                self.last_message = self.read_queue.get(0)
                 if self.last_message.type == "message":
                     if self.last_message.command == "AR":
                         val = self.last_message.message
@@ -127,7 +128,7 @@ class Manager:
                     else:
                         pass
                 elif self.last_message.type == "ack":
-                    # self.writing_thread.acknowledge(self.last_message.message)
+                    self.my_serial.acknowledge(self.last_message.message)
                     pass
                 else:
                     pass
@@ -135,38 +136,30 @@ class Manager:
                 pass
 
         # Handle PID values
-        change = False
         if self.pid.output > 0:
-            if (self.heater == 'OFF') or (self.fan == 'ON'):
-                change = True
             self.heater = 'ON'
             self.fan = 'OFF'
         elif self.pid.output < 0:
-            if (self.heater == 'ON') or (self.fan == 'OFF'):
-                change = True
             self.heater = 'OFF'
             self.fan = 'ON'
         else:
-            if (self.heater == 'ON') or (self.fan == 'ON'):
-                change = True
             self.heater = 'OFF'
             self.fan = 'OFF'
 
-        if change:
-            # self.my_serial.serial_write("HE", self.heater)
-            # self.my_serial.serial_write("FA", self.fan)
-            pass
-
+        self.writing_thread.set_heat_and_fan(self.heater, self.fan)
 
     def digital_to_temp(self, value):
         return value/10
 
     def start_writing_thread(self):
+        self.my_serial.write_buffer = []
+        self.my_serial.can_write = True
+        self.my_serial.ack_id = 0
         if not self.write_event.is_set:
             self.writing_thread.start()
         else:
             self.write_event.clear()
-            self.writing_thread = WriteThread(self.write_event, self.my_serial)
+            self.writing_thread = WriteThread(self.write_event, self.my_serial, TIME_INTERVAL)
             self.writing_thread.setDaemon(True)
             self.writing_thread.start()
 
@@ -175,10 +168,11 @@ class Manager:
         self.writing_thread.join(5)
 
     def end_application(self):
-        self.my_serial.serial_destroy()
+        self.my_serial.serial_write("CD", "")
         self.master.quit()
         self.read_event.set()
         self.reading_thread.join(5)
         if not self.write_event.is_set:
             self.write_event.set()
             self.writing_thread.join(5)
+        self.my_serial.serial_destroy()

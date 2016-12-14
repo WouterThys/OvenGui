@@ -15,10 +15,11 @@ from my_serial.PICClasses import PICInfo
 
 
 class MainScreen:
-    def __init__(self, master, settings, serial_interface, manager, end_command):
+    def __init__(self, master, settings, serial_interface, manager, interval, end_command):
         self.master = master
         self.pic_info = PICInfo
         self.manager = manager
+        self.interval = interval
         # Set up the main menu
         MainMenu.MainMenu(master, settings, serial_interface, end_command)
         # Window settings
@@ -37,7 +38,7 @@ class MainScreen:
         self.bottom_panel.grid(row=3, column=0, columnspan=2, sticky='nsew')
 
         # Graph panel
-        self.graph = GraphPanel(master, self.bottom_panel)
+        self.graph = GraphPanel(master, self.bottom_panel, self.interval)
         self.graph.grid(row=0, rowspan=2, column=0, sticky='nsew')
 
         # Control panel
@@ -87,7 +88,6 @@ class MainScreen:
         self.feedback_panel.set_heater_state(self.manager.heater)
         self.feedback_panel.set_fan_state(self.manager.fan)
 
-
         msg = self.manager.last_message
         if not msg is None:
             if not msg.type == "ack":
@@ -100,7 +100,10 @@ class MainScreen:
         PicInfoDialog(self.master, self.pic_info)
 
     def forced_stop(self):
-        self.control_panel.enable_start_btn(True)
+        if self.graph.is_target_set:
+            self.control_panel.enable_start_btn(True)
+        else:
+            self.control_panel.enable_start_btn(False)
         self.control_panel.enable_stop_btn(False)
         self.control_panel.enable_graph_btn(True)
 

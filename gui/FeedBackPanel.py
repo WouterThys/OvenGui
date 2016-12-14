@@ -6,6 +6,7 @@ class FeedBackPanel(Frame):
         Frame.__init__(self, master, *args, **kwargs)
 
         self.config(bd=1, relief=RAISED, padx=2, pady=2)
+        self.default_bg = self.cget('bg')
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
@@ -122,9 +123,11 @@ class FeedBackPanel(Frame):
     def set_door_state(self, state):
         if state == 'O':
             self.door_txt.set('Open')
+            self.door_ent.configure(fg="gainsboro")
             self.door_ent.configure(bg="orange red")
         elif state == 'C':
             self.door_txt.set('Closed')
+            self.door_ent.configure(fg="dim gray")
             self.door_ent.configure(bg="lawn green")
         else:
             self.door_txt.set('...')
@@ -136,23 +139,29 @@ class FeedBackPanel(Frame):
     def set_heater_state(self, state):
         if state == 'ON':
             self.heater_txt.set('On')
-            self.heater_ent.configure(bg="lawn green")
+            self.heater_ent.configure(fg="gainsboro")
+            self.heater_ent.configure(bg="orange red")
         elif state == 'OFF':
             self.heater_txt.set('Off')
-            self.heater_ent.configure(bg="orange red")
+            self.heater_ent.configure(fg="dim gray")
+            self.heater_ent.configure(bg=self.default_bg)
         else:
             self.heater_txt.set('...')
-            self.heater_ent.configure(bg=None)
+            self.heater_ent.configure(fg="dim gray")
+            self.heater_ent.configure(bg=self.default_bg)
 
     def set_fan_state(self, state):
         if state == 'ON':
             self.fan_txt.set('On')
-            self.fan_ent.configure(bg="lawn green")
+            self.fan_ent.configure(fg="gainsboro")
+            self.fan_ent.configure(bg="royal blue")
         elif state == 'OFF':
             self.fan_txt.set('Off')
-            self.fan_ent.configure(bg="orange red")
+            self.fan_ent.configure(fg="dim gray")
+            self.fan_ent.configure(bg=self.default_bg)
         else:
             self.fan_txt.set('...')
-            self.fan_ent.configure(bg=None)
+            self.fan_ent.configure(fg="dim gray")
+            self.fan_ent.configure(bg=self.default_bg)
 
 
