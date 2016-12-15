@@ -28,12 +28,6 @@ class WriteThread(threading.Thread):
         while not self.event.is_set():
             start_time = time.time()
             if self.serial_interface.isReady:
-                # if self.serial_interface.serial_write(COMMAND_TYPES.get("Analog read"), "") < 0:
-                #     self.event.set()
-                # if self.serial_interface.serial_write("HE", self.heater) < 0:
-                #     self.event.set()
-                # if self.serial_interface.serial_write("FA", self.fan) < 0:
-                #     self.event.set()
                 self.command.append(COMMAND_TYPES.get("Analog read"))
                 self.message.append("")
 

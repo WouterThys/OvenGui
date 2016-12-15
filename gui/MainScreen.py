@@ -8,20 +8,19 @@ from gui.BottomPanel import BottomPanel
 from gui.ControlPanel import ControlPanel
 from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog, PIDSettingsDialog
 from gui.FeedBackPanel import FeedBackPanel
-from gui.SettingsPanel import SettingsPanel
 from gui.MessagePanel import MessagePanel
 from gui.GraphPanel import GraphPanel
 from my_serial.PICClasses import PICInfo
 
 
 class MainScreen:
-    def __init__(self, master, serial_interface, manager, interval, end_command):
+    def __init__(self, master, manager, interval, end_command):
         self.master = master
         self.pic_info = PICInfo
         self.manager = manager
         self.interval = interval
         # Set up the main menu
-        MainMenu.MainMenu(master, serial_interface, end_command)
+        MainMenu.MainMenu(master, self.manager.my_serial, self.manager.pid, end_command)
         # Window settings
         self.master.minsize(width=1000, height=500)
         self.master.wm_title("Oven")
@@ -52,9 +51,9 @@ class MainScreen:
 
         # Feed back panel
         self.feedback_panel = FeedBackPanel(master)
-        self.feedback_panel.set_kp_value(self.manager.kp)
-        self.feedback_panel.set_ki_value(self.manager.ki)
-        self.feedback_panel.set_kd_value(self.manager.kd)
+        self.feedback_panel.set_kp_value(self.manager.pid.Kp)
+        self.feedback_panel.set_ki_value(self.manager.pid.Ki)
+        self.feedback_panel.set_kd_value(self.manager.pid.Kd)
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
 
         # Message panel
@@ -79,6 +78,10 @@ class MainScreen:
         self.feedback_panel.set_state_state(self.manager.state)
         self.feedback_panel.set_heater_state(self.manager.heater)
         self.feedback_panel.set_fan_state(self.manager.fan)
+
+        self.feedback_panel.set_kp_value(self.manager.pid.Kp)
+        self.feedback_panel.set_ki_value(self.manager.pid.Ki)
+        self.feedback_panel.set_kd_value(self.manager.pid.Kd)
 
         msg = self.manager.last_message
         if not msg is None:

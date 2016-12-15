@@ -53,11 +53,8 @@ class Manager:
         self.first_write = True
 
         # PID values
-        self.kp = 20
-        self.ki = 0.005
-        self.kd = 0.01
-        self.pid = PID(self.kp, self.ki, self.kd)
-        self.pid.dt = TIME_INTERVAL
+        self.pid = PID()
+        self.pid.configure_pid()
         self.cnt = 0
         self.temp_real = 0
         self.temp_target = []
@@ -68,7 +65,7 @@ class Manager:
         self.write_event = threading.Event()
         self.last_message = None
         # Set up the GUI
-        self.gui = MainScreen(master, self.my_serial, self, TIME_INTERVAL, self.end_application)
+        self.gui = MainScreen(master,  self, TIME_INTERVAL, self.end_application)
 
         # Set up the threads to do asynchronous I/O.
         self.reading_thread = ReadThread(self.read_event, self.read_queue, self.my_serial)

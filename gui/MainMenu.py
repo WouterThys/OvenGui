@@ -5,9 +5,10 @@ from gui.Dialogs import SerialSettingsDialog, PIDSettingsDialog
 
 
 class MainMenu:
-    def __init__(self, parent, serial, end_command):
+    def __init__(self, parent, serial, pid, end_command):
         self.parent = parent
         self.serial = serial
+        self.pid = pid
         self.end_command = end_command
 
         menu = Menu(parent)
@@ -35,7 +36,7 @@ class MainMenu:
         SerialSettingsDialog(self.parent, self.serial)
 
     def menu_settings_pid(self):
-        PIDSettingsDialog(self.parent, self.parent.manager.pid)
+        PIDSettingsDialog(self.parent, self.pid)
 
     def menu_settings_graph(self):
         SerialSettingsDialog(self.parent, self.serial)

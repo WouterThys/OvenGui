@@ -1,5 +1,8 @@
+from settings.Settings import read_settings, PID_SETTINGS
+
+
 class PID:
-    def __init__(self, p, i, d):
+    def __init__(self, p=20, i=0.005, d=0.01):
         self.Kp = p
         self.Ki = i
         self.Kd = d
@@ -10,14 +13,22 @@ class PID:
         self.dt = 1.0     # Time interval in which every cycle happens
 
         self.integrator = 0.0
-        self.windup = 1000      # To counter large oscillations
+        self.Wu = 1000      # To counter large oscillations
 
         self.output = 0.0
+
+    def configure_pid(self):
+        pid_settings = read_settings(PID_SETTINGS)
+        self.Kp = pid_settings['Kp']
+        self.Ki = pid_settings['Ki']
+        self.Kd = pid_settings['Kd']
+        self.Wu = pid_settings['Wu']
+        self.dt = pid_settings['dt']
 
     # Integrator part
     def integrate(self, error):
         i = self.integrator + error*self.dt
-        if abs(i) > self.windup:
+        if abs(i) > self.Wu:
             return 0
         else:
             self.integrator += (error*self.dt)

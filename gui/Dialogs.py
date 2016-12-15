@@ -9,7 +9,7 @@ import serial
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 
 from my_serial.SerialInterface import SerialInterface
-from settings.Settings import read_settings, UART_SETTINGS, write_settings
+from settings.Settings import read_settings, UART_SETTINGS, write_settings, PID_SETTINGS
 
 
 class SerialSettingsDialog(tkSimpleDialog.Dialog):
@@ -53,23 +53,10 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
 
     def validate(self):
         try:
-            # result = dict([('parity', pari), ('baudrate', baud), ('bytesize', bits), ('stopbits', stop)])
             self.settings['parity'] = str(self.pari_sp.get())
             self.settings['baudrate'] = int(self.baud_sp.get())
             self.settings['bytesize'] = int(self.bits_sp.get())
             self.settings['stopbits'] = int(self.stop_sp.get())
-
-            self.my_serial.ser.port = str(self.port_sp.get())
-            self.my_serial.ser.applySettingsDict(self.settings)
-
-            yaml_dict = read_settings(UART_SETTINGS)
-            yaml_dict['parity'] = str(self.pari_sp.get())
-            yaml_dict['baud_rate'] = int(self.baud_sp.get())
-            yaml_dict['data_bits'] = int(self.bits_sp.get())
-            yaml_dict['stop_bits'] = int(self.stop_sp.get())
-            yaml_dict['com_port'] = str(self.port_sp.get())
-            write_settings(UART_SETTINGS, yaml_dict)
-
             return 1
         except Exception as e:
             tkMessageBox.showerror(
@@ -79,7 +66,21 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
             return 0
 
     def apply(self):
-        pass
+        # self.my_serial.ser.flushInput()
+        # self.my_serial.ser.flushOutput()
+        # self.my_serial.ser.port = str(self.port_sp.get())
+        # self.my_serial.ser.applySettingsDict(self.settings)
+
+        yaml_dict = read_settings(UART_SETTINGS)
+        yaml_dict['parity'] = str(self.pari_sp.get())
+        yaml_dict['baud_rate'] = int(self.baud_sp.get())
+        yaml_dict['data_bits'] = int(self.bits_sp.get())
+        yaml_dict['stop_bits'] = int(self.stop_sp.get())
+        yaml_dict['com_port'] = str(self.port_sp.get())
+        write_settings(UART_SETTINGS, yaml_dict)
+
+        self.my_serial.serial_destroy()
+        self.my_serial.configure_serial()
 
 
 class PIDSettingsDialog(tkSimpleDialog.Dialog):
@@ -99,7 +100,7 @@ class PIDSettingsDialog(tkSimpleDialog.Dialog):
         Label(master, text="Ki").grid(row=1, sticky=W)
         Label(master, text="Kd").grid(row=2, sticky=W)
         Label(master, text="dt").grid(row=3, sticky=W)
-        Label(master, text="WU").grid(row=4, sticky=W)
+        Label(master, text="Wu").grid(row=4, sticky=W)
 
         kp_str = StringVar()
         ki_str = StringVar()
@@ -117,7 +118,7 @@ class PIDSettingsDialog(tkSimpleDialog.Dialog):
         ki_str.set(self.pid.Ki)
         kd_str.set(self.pid.Kd)
         dt_str.set(self.pid.dt)
-        wu_str.set(self.pid.windup)
+        wu_str.set(self.pid.Wu)
 
         self.kp_ent.grid(row=0, column=1)
         self.ki_ent.grid(row=1, column=1)
@@ -129,12 +130,15 @@ class PIDSettingsDialog(tkSimpleDialog.Dialog):
 
     def validate(self):
         try:
-            # result = dict([('parity', pari), ('baudrate', baud), ('bytesize', bits), ('stopbits', stop)])
-            self.pid.Kp= float(self.kp_ent.get())
-            self.pid.Ki= float(self.ki_ent.get())
-            self.pid.Kd= float(self.kd_ent.get())
-            self.pid.dt= float(self.dt_ent.get())
-            self.pid.wu= float(self.wu_ent.get())
+            yaml_dict = read_settings(PID_SETTINGS)
+            yaml_dict['Kd'] = float(self.kd_ent.get())
+            yaml_dict['Ki'] = float(self.ki_ent.get())
+            yaml_dict['Kp'] = float(self.kp_ent.get())
+            yaml_dict['Wu'] = float(self.wu_ent.get())
+            yaml_dict['dt'] = float(self.dt_ent.get())
+            write_settings(PID_SETTINGS, yaml_dict)
+
+            self.pid.configure_pid()
             return 1
         except Exception as e:
             tkMessageBox.showerror(

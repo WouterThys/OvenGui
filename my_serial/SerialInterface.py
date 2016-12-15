@@ -14,64 +14,30 @@ class SerialInterface:
     def __init__(self):
         self.isReady = False
         self.ack_id = 0
+        self.ser = None
 
         self.write_buffer = []
         self.can_write = True
 
     def configure_serial(self):
-        self.ser = serial.Serial()
         uart_settings = read_settings(UART_SETTINGS)
 
         try:
-            if self.ser.isOpen():
+            if (self.ser is not None) and (self.ser.isOpen()):
                 self.ser.close()
             self.ser = serial.Serial(
                 port=uart_settings["com_port"],
                 baudrate=uart_settings["baud_rate"],
                 parity=uart_settings["parity"],
                 stopbits=uart_settings["stop_bits"],
-                bytesize=uart_settings["data_bits"],
-                timeout=5
+                bytesize=uart_settings["data_bits"]
             )
+            print self.ser
         except ValueError as e:
             tkMessageBox.showerror("Serial error", "Invalid value: "+e.message)
         except serial.SerialException as e:
             tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
 
-        # if ser_set is None:
-        #     try:
-        #         if self.ser.isOpen():
-        #             self.ser.close()
-        #         port = self.serial_ports()
-        #         if len(port) > 0:
-        #             self.ser = serial.Serial(
-        #                 port=port[0],
-        #                 baudrate=9600,
-        #                 parity=serial.PARITY_NONE,
-        #                 stopbits=serial.STOPBITS_ONE,
-        #                 bytesize=serial.EIGHTBITS,
-        #                 timeout=5
-        #             )
-        #     except ValueError as e:
-        #         tkMessageBox.showerror("Serial error", "Invalid value: "+e.message)
-        #     except serial.SerialException as e:
-        #         tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
-        #
-        # else:
-        #     try:
-        #         if self.ser.isOpen():
-        #             self.ser.close()
-        #         self.ser = serial.Serial(
-        #             port=ser_set.com_port,
-        #             baudrate=ser_set.baud_rate,
-        #             parity=ser_set.parity,
-        #             stopbits=ser_set.stop_bits,
-        #             bytesize=ser_set.data_bits
-        #         )
-        #     except ValueError as e:
-        #         tkMessageBox.showerror("Serial error", "Invalid value: "+e.message)
-        #     except serial.SerialException as e:
-        #         tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
         self.isReady = self.ser.isOpen()
 
     @staticmethod
