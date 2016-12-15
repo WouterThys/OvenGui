@@ -15,13 +15,13 @@ from my_serial.PICClasses import PICInfo
 
 
 class MainScreen:
-    def __init__(self, master, settings, serial_interface, manager, interval, end_command):
+    def __init__(self, master, serial_interface, manager, interval, end_command):
         self.master = master
         self.pic_info = PICInfo
         self.manager = manager
         self.interval = interval
         # Set up the main menu
-        MainMenu.MainMenu(master, settings, serial_interface, end_command)
+        MainMenu.MainMenu(master, serial_interface, end_command)
         # Window settings
         self.master.minsize(width=1000, height=500)
         self.master.wm_title("Oven")
@@ -29,7 +29,6 @@ class MainScreen:
         self.master.grid_rowconfigure(1, weight=1)
         self.master.grid_rowconfigure(2, weight=1)
         self.master.grid_rowconfigure(3, weight=1)
-        # self.master.grid_rowconfigure(4, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_columnconfigure(1, weight=1)
 
@@ -57,13 +56,6 @@ class MainScreen:
         self.feedback_panel.set_ki_value(self.manager.ki)
         self.feedback_panel.set_kd_value(self.manager.kd)
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
-
-        # Settings panel
-        # self.settings_panel = SettingsPanel(master, self.bottom_panel)
-        # self.settings_panel.uart_settings_btn.configure(command=self.on_uart_settings_btn_click)
-        # self.settings_panel.pid_settings_btn.configure(command=self.on_pid_settings_btn_click)
-        # self.settings_panel.graph_settings_btn.configure(command=self.on_graph_settings_btn_click)
-        # self.settings_panel.grid(row=2, column=1, sticky='nsew')
 
         # Message panel
         self.message_panel = MessagePanel(master)

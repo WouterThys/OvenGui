@@ -1,0 +1,12 @@
+PIDSettings:
+  Kd: 0.01
+  Ki: 0.005
+  Kp: 20
+  Wu: 1000
+  dt: 1
+UartSettings:
+  baud_rate: 57600
+  com_port: /dev/ttyUSB0
+  data_bits: 8
+  parity: N
+  stop_bits: 1

@@ -4,7 +4,6 @@ import tkMessageBox
 
 from my_serial.WriteThread import WriteThread
 from pid.PID import PID
-from settings.Settings import Settings
 from my_serial.SerialInterface import SerialInterface
 from gui.MainScreen import MainScreen
 from my_serial.ReadThread import ReadThread
@@ -43,9 +42,8 @@ class Manager:
         self.master = master
 
         # Create local instances
-        self.my_settings = Settings()
         self.my_serial = SerialInterface()
-        self.my_serial.configure_serial(self.my_settings.serial_settings)
+        self.my_serial.configure_serial()
 
         # Variables
         self.door_state = 'C'  # State of the door, open ('O') or closed ('C')
@@ -70,7 +68,7 @@ class Manager:
         self.write_event = threading.Event()
         self.last_message = None
         # Set up the GUI
-        self.gui = MainScreen(master, self.my_settings, self.my_serial, self, TIME_INTERVAL, self.end_application)
+        self.gui = MainScreen(master, self.my_serial, self, TIME_INTERVAL, self.end_application)
 
         # Set up the threads to do asynchronous I/O.
         self.reading_thread = ReadThread(self.read_event, self.read_queue, self.my_serial)

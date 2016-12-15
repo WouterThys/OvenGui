@@ -1,13 +1,12 @@
 from Tkinter import *
 import tkMessageBox
 
-from gui.Dialogs import SerialSettingsDialog
+from gui.Dialogs import SerialSettingsDialog, PIDSettingsDialog
 
 
 class MainMenu:
-    def __init__(self, parent, settings, serial, end_command):
+    def __init__(self, parent, serial, end_command):
         self.parent = parent
-        self.settings = settings
         self.serial = serial
         self.end_command = end_command
 
@@ -35,9 +34,8 @@ class MainMenu:
     def menu_settings_serial(self):
         SerialSettingsDialog(self.parent, self.serial)
 
-
     def menu_settings_pid(self):
-        SerialSettingsDialog(self.parent, self.serial)
+        PIDSettingsDialog(self.parent, self.parent.manager.pid)
 
     def menu_settings_graph(self):
         SerialSettingsDialog(self.parent, self.serial)

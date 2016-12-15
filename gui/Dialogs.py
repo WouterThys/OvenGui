@@ -9,6 +9,7 @@ import serial
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 
 from my_serial.SerialInterface import SerialInterface
+from settings.Settings import read_settings, UART_SETTINGS, write_settings
 
 
 class SerialSettingsDialog(tkSimpleDialog.Dialog):
@@ -60,6 +61,15 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
 
             self.my_serial.ser.port = str(self.port_sp.get())
             self.my_serial.ser.applySettingsDict(self.settings)
+
+            yaml_dict = read_settings(UART_SETTINGS)
+            yaml_dict['parity'] = str(self.pari_sp.get())
+            yaml_dict['baud_rate'] = int(self.baud_sp.get())
+            yaml_dict['data_bits'] = int(self.bits_sp.get())
+            yaml_dict['stop_bits'] = int(self.stop_sp.get())
+            yaml_dict['com_port'] = str(self.port_sp.get())
+            write_settings(UART_SETTINGS, yaml_dict)
+
             return 1
         except Exception as e:
             tkMessageBox.showerror(
