@@ -7,6 +7,7 @@ from pid.PID import PID
 from my_serial.SerialInterface import SerialInterface
 from gui.MainScreen import MainScreen
 from my_serial.ReadThread import ReadThread
+from utils.Utils import digital_to_temp
 
 TIME_INTERVAL = 1 # Time interval in seconds
 
@@ -109,7 +110,7 @@ class Manager:
                         val = self.last_message.message
                         try:
                             self.temp_real = float(val)
-                            self.temp_real = self.digital_to_temp(self.temp_real)
+                            self.temp_real = digital_to_temp(self.temp_real)
                             self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
                             self.cnt += 1
                             pid_output = self.pid.do_work(self.temp_real)
@@ -142,9 +143,6 @@ class Manager:
             self.fan = 'OFF'
 
         self.writing_thread.set_heat_and_fan(self.heater, self.fan)
-
-    def digital_to_temp(self, value):
-        return value/10
 
     def start_writing_thread(self):
         self.my_serial.write_buffer = []
