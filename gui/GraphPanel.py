@@ -1,19 +1,24 @@
 from Tkinter import *
 import matplotlib
+import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+
+from errors.Errors import InvalidPointsException
 
 matplotlib.use('TkAgg')
 
 
 class GraphPanel(Frame):
-    def __init__(self, master, info_panel, interval, *args, **kwargs):
+    def __init__(self, master, info_panel=None, interval=1, *args, **kwargs):
         Frame.__init__(self, master, *args, **kwargs)
 
         self.f = Figure()
         self.a = self.f.add_subplot(111)
         self.a.set_xlabel("Time (s)")
         self.a.set_ylabel("Temp (C)")
+        self.a.set_ylim([-1, 300])
+        self.a.set_xlim([-1, 400])
 
         self.cnt = 0
         self.interval = interval
@@ -25,10 +30,13 @@ class GraphPanel(Frame):
         self.is_target_set = False
         self.y_pid = []
         self.x_pid = []
+        self.y_points = []
+        self.x_points = []
 
         self.target_line, = self.a.plot(self.x_target, self.y_target)
         self.real_line, = self.a.plot(self.x_real, self.y_real, '.r')
         self.pid_line, = self.a.plot(self.x_pid, self.y_pid)
+        self.create_line, = self.a.plot(self.x_points, self.y_points, 'ro', picker=5)
 
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.show()
@@ -67,6 +75,44 @@ class GraphPanel(Frame):
     def update_axis(self):
         self.a.set_ylim([0, 400])
         # self.a.set_xlim([0, max(self.x_real) + 2 * INTERVAL])
+
+    def set_point(self, x, y):
+        self.x_points.append(x)
+        self.y_points.append(y)
+
+        # Sort it
+        yx = zip(self.y_points, self.x_points)
+        yx.sort()
+        self.x_points = [x for y, x in yx]
+        self.y_points = [y for y, x in yx]
+
+        self.create_line.set_xdata(self.x_points)
+        self.create_line.set_ydata(self.y_points)
+
+        if max(self.x_points) > (self.a.get_xlim()[1]-10):
+            self.a.set_xlim([-1, max(self.x_points)+10])
+        if max(self.y_points) > (self.a.get_ylim()[1]-10):
+            self.a.set_ylim([-1, max(self.y_points)+10])
+
+        self.canvas.draw()
+
+    def delete_point(self, x, y):
+        if (x in self.x_points) and (y in self.y_points):
+            self.x_points.remove(x)
+            self.y_points.remove(y)
+
+            # Sort it
+            yx = zip(self.y_points, self.x_points)
+            yx.sort()
+            self.x_points = [x for y, x in yx]
+            self.y_points = [y for y, x in yx]
+
+            self.create_line.set_xdata(self.x_points)
+            self.create_line.set_ydata(self.y_points)
+
+            self.canvas.draw()
+        else:
+            raise InvalidPointsException("Can not find point: ({0},{1})".format(float(x), float(y)))
 
     def set_target_graph(self, graph_file_name):
         cnt = 0
@@ -111,6 +157,14 @@ class GraphPanel(Frame):
             # Return some error
             self.is_target_set = False
             return False
+
+    def get_xy_values(self):
+        X,Y = [],[]
+        for lines in self.a.get_lines():
+            for x,y in lines.get_xydata():
+                X.append(x)
+                Y.append(y)
+        return X, Y
 
     def display_info(self, event, arg):
         if self.info_panel is not None:

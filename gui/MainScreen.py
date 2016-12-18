@@ -99,7 +99,6 @@ class MainScreen:
     """
     Events
     """
-
     def on_start_btn_click(self):
         if self.manager.door_state == 'C':
             self.manager.start_writing_thread()
