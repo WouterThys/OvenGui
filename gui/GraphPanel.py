@@ -1,8 +1,9 @@
 from Tkinter import *
 import matplotlib
-import pandas as pd
+import numpy, weakref
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 from errors.Errors import InvalidPointsException
 
@@ -37,6 +38,7 @@ class GraphPanel(Frame):
         self.real_line, = self.a.plot(self.x_real, self.y_real, '.r')
         self.pid_line, = self.a.plot(self.x_pid, self.y_pid)
         self.create_line, = self.a.plot(self.x_points, self.y_points, 'ro', picker=5)
+        self.interpol_line, = self.a.plot([], [])
 
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.show()
@@ -158,13 +160,18 @@ class GraphPanel(Frame):
             self.is_target_set = False
             return False
 
-    def get_xy_values(self):
-        X,Y = [],[]
-        for lines in self.a.get_lines():
-            for x,y in lines.get_xydata():
-                X.append(x)
-                Y.append(y)
-        return X, Y
+    def get_xy_point_values(self):
+        return self.x_points, self.y_points
+
+    def add_interpolated_plot(self, x, y):
+        if len(self.a.lines) > 1:
+            self.a.lines.pop(-1)
+
+        self.interpol_line = self.a.plot(x, y, '--')
+        self.canvas.draw()
+
+    def del_interploated_plot(self, p):
+        pass
 
     def display_info(self, event, arg):
         if self.info_panel is not None:

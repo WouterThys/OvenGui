@@ -1,6 +1,7 @@
 import tkMessageBox
 from Tkinter import *
 
+
 class PointPanel(Frame):
     def __init__(self, master, *args, **kwargs):
         # Frame.__init__(self, master, width=50, height=100, *args, **kwargs)
@@ -62,4 +63,5 @@ class PointPanel(Frame):
     def clear_entries(self):
         self.x_point_ent.delete(0,END)
         self.y_point_ent.delete(0,END)
+        self.x_point_ent.focus()
 
