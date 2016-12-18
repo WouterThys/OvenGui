@@ -10,6 +10,7 @@ from gui.Dialogs import PicInfoDialog, FileDialog, SerialSettingsDialog, PIDSett
 from gui.FeedBackPanel import FeedBackPanel
 from gui.MessagePanel import MessagePanel
 from gui.GraphPanel import GraphPanel
+from gui.TemperaturePanel import TemperaturePanel
 from my_serial.PICClasses import PICInfo
 
 
@@ -56,6 +57,10 @@ class MainScreen:
         self.feedback_panel.set_kd_value(self.manager.pid.Kd)
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
 
+        # Temperature panel
+        self.temperature_panel = TemperaturePanel(master, self.bottom_panel)
+        self.temperature_panel.grid(row=2, column=1, sticky='nsew')
+
         # Message panel
         self.message_panel = MessagePanel(master)
         self.message_panel.grid(row=2, column=0, sticky='nsew')
@@ -69,19 +74,8 @@ class MainScreen:
         """
         Set the appropriate fields
         """
-        self.feedback_panel.set_target_value(self.manager.pid.set_point)
-        self.feedback_panel.set_sense_value(self.manager.temp_real)
-        self.feedback_panel.set_error_value(self.manager.pid.error)
-        self.feedback_panel.set_pid_value(self.manager.pid.output)
-
-        self.feedback_panel.set_door_state(self.manager.door_state)
-        self.feedback_panel.set_state_state(self.manager.state)
-        self.feedback_panel.set_heater_state(self.manager.heater)
-        self.feedback_panel.set_fan_state(self.manager.fan)
-
-        self.feedback_panel.set_kp_value(self.manager.pid.Kp)
-        self.feedback_panel.set_ki_value(self.manager.pid.Ki)
-        self.feedback_panel.set_kd_value(self.manager.pid.Kd)
+        self.feedback_panel.update_all(self.manager)
+        self.temperature_panel.set_temperature_value(self.manager.temp_real)
 
         msg = self.manager.last_message
         if not msg is None:

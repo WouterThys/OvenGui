@@ -78,6 +78,8 @@ class GraphPanel(Frame):
                     for line in file_stream:
                         current_line = line.split(",")
                         for val in current_line:
+                            if val == '\n':
+                                continue
                             y_vals.append(float(val.strip()))
                             x_vals.append(float(cnt))
                             cnt += self.interval

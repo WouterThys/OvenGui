@@ -164,4 +164,19 @@ class FeedBackPanel(Frame):
             self.fan_ent.configure(fg="dim gray")
             self.fan_ent.configure(bg=self.default_bg)
 
+    def update_all(self, manager):
+        self.set_target_value(manager.pid.set_point)
+        self.set_sense_value(manager.temp_real)
+        self.set_error_value(manager.pid.error)
+        self.set_pid_value(manager.pid.output)
+
+        self.set_door_state(manager.door_state)
+        self.set_state_state(manager.state)
+        self.set_heater_state(manager.heater)
+        self.set_fan_state(manager.fan)
+
+        self.set_kp_value(manager.pid.Kp)
+        self.set_ki_value(manager.pid.Ki)
+        self.set_kd_value(manager.pid.Kd)
+
 
