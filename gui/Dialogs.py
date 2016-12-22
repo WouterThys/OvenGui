@@ -67,11 +67,6 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
             return 0
 
     def apply(self):
-        # self.my_serial.ser.flushInput()
-        # self.my_serial.ser.flushOutput()
-        # self.my_serial.ser.port = str(self.port_sp.get())
-        # self.my_serial.ser.applySettingsDict(self.settings)
-
         yaml_dict = read_settings(UART_SETTINGS)
         yaml_dict['parity'] = str(self.pari_cb.get())
         yaml_dict['baud_rate'] = int(self.baud_cb.get())

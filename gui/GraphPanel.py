@@ -1,9 +1,8 @@
+import tkMessageBox
 from Tkinter import *
 import matplotlib
-import numpy, weakref
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 
 from errors.Errors import InvalidPointsException
 
@@ -24,20 +23,16 @@ class GraphPanel(Frame):
         self.cnt = 0
         self.interval = interval
 
-        self.y_real = []
-        self.x_real = []
-        self.y_target = []
-        self.x_target = []
+        self.xy_real = []
+        self.xy_target = []
         self.is_target_set = False
-        self.y_pid = []
-        self.x_pid = []
-        self.y_points = []
-        self.x_points = []
+        self.xy_pid = []
+        self.xy_points = []
 
-        self.target_line, = self.a.plot(self.x_target, self.y_target)
-        self.real_line, = self.a.plot(self.x_real, self.y_real, '.r')
-        self.pid_line, = self.a.plot(self.x_pid, self.y_pid)
-        self.create_line, = self.a.plot(self.x_points, self.y_points, 'ro', picker=5)
+        self.target_line, = self.a.plot([], [])
+        self.real_line, = self.a.plot([], [], '.r')
+        self.pid_line, = self.a.plot([], [])
+        self.create_line, = self.a.plot([], [], 'ro', picker=5)
         self.interpol_line, = self.a.plot([], [])
 
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
@@ -55,68 +50,50 @@ class GraphPanel(Frame):
                 self.display_info(event,"")
         self.canvas.mpl_connect('motion_notify_event', on_mouse_motion)
 
-        # def on_button_release_event(event):
-        #     GraphOptionsDialog(self.master, self.canvas)
-        # self.canvas.mpl_connect('button_release_event', on_button_release_event)
+    def append_graph(self, new_x, new_y, pid_x, pid_y):
+        self.xy_real.append((new_x, new_y))
+        self.xy_pid.append((pid_x, pid_y))
 
-    def update_graph(self, value, pid=0):
-        self.cnt += self.interval
-        self.x_real.append(self.cnt)
-        self.y_real.append(value)
-        self.x_pid.append(self.cnt)
-        self.y_pid.append(pid)
+        self.real_line.set_xdata(zip(*self.xy_real)[0])
+        self.real_line.set_ydata(zip(*self.xy_real)[1])
+        self.pid_line.set_xdata(zip(*self.xy_pid)[0])
+        self.pid_line.set_ydata(zip(*self.xy_pid)[0])
 
-        self.real_line.set_xdata(self.x_real)
-        self.real_line.set_ydata(self.y_real)
-        self.pid_line.set_xdata(self.x_pid)
-        self.pid_line.set_ydata(self.y_pid)
+        self.canvas.draw()
 
-        #self.update_axis()
+    def draw_graph(self, xy_values, line):
+        x = zip(*xy_values)[0]
+        y = zip(*xy_values)[1]
+
+        line.set_xdata(x)
+        line.set_ydata(y)
+        if max(x) > (self.a.get_xlim()[1]-10):
+            self.a.set_xlim([-1, max(x)+10])
+        if max(y) > (self.a.get_ylim()[1]-10):
+            self.a.set_ylim([-1, max(y)+10])
         self.canvas.draw()
 
     def update_axis(self):
         self.a.set_ylim([0, 400])
         # self.a.set_xlim([0, max(self.x_real) + 2 * INTERVAL])
 
-    def set_point(self, x, y):
-        self.x_points.append(x)
-        self.y_points.append(y)
+    def set_point(self, new_x, new_y):
+        if (new_x, new_y) not in self.xy_points:
+            self.xy_points.append((new_x,new_y))
+        # Sort and draw
+        self.xy_points.sort()
+        self.draw_graph(self.xy_points, self.create_line)
 
-        # Sort it
-        yx = zip(self.y_points, self.x_points)
-        yx.sort()
-        self.x_points = [x for y, x in yx]
-        self.y_points = [y for y, x in yx]
-
-        self.create_line.set_xdata(self.x_points)
-        self.create_line.set_ydata(self.y_points)
-
-        if max(self.x_points) > (self.a.get_xlim()[1]-10):
-            self.a.set_xlim([-1, max(self.x_points)+10])
-        if max(self.y_points) > (self.a.get_ylim()[1]-10):
-            self.a.set_ylim([-1, max(self.y_points)+10])
-
-        self.canvas.draw()
-
-    def delete_point(self, x, y):
-        if (x in self.x_points) and (y in self.y_points):
-            self.x_points.remove(x)
-            self.y_points.remove(y)
-
-            # Sort it
-            yx = zip(self.y_points, self.x_points)
-            yx.sort()
-            self.x_points = [x for y, x in yx]
-            self.y_points = [y for y, x in yx]
-
-            self.create_line.set_xdata(self.x_points)
-            self.create_line.set_ydata(self.y_points)
-
-            self.canvas.draw()
+    def delete_point(self, new_x, new_y):
+        if (new_x, new_y) in self.xy_points:
+            self.xy_points.remove((new_x, new_y))
+            # Sort and draw
+            self.xy_points.sort()
+            self.draw_graph(self.xy_points, self.create_line)
         else:
-            raise InvalidPointsException("Can not find point: ({0},{1})".format(float(x), float(y)))
+            raise InvalidPointsException("Can not find point: {0}".format((new_x, new_y)))
 
-    def set_target_graph(self, graph_file_name):
+    def set_target_graph2(self, graph_file_name):
         cnt = 0
         x_vals = []
         y_vals = []
@@ -137,19 +114,41 @@ class GraphPanel(Frame):
                 self.is_target_set = False
                 return False
 
-            self.x_target = x_vals
-            self.y_target = y_vals
-            self.target_line.set_xdata(self.x_target)
-            self.target_line.set_ydata(self.y_target)
-
-            max_x = max(self.x_target)
-            max_y = max(self.y_target)
-
-            self.a.set_ylim([-1, (max_y + 50)])
-            self.a.set_xlim([-1, (max_x + 10)])
-
+            self.xy_target = zip(x_vals, y_vals)
+            self.draw_graph(self.xy_target, self.target_line)
             self.is_target_set = True
-            self.canvas.draw()
+
+            if self.info_panel is not None:
+                self.unbind("<Enter>")
+
+            return True
+        else:
+            # Return some error
+            self.is_target_set = False
+            return False
+
+    def set_target_graph(self, graph_file_name):
+        result = []
+        if graph_file_name:
+            try:
+                with open(graph_file_name, "r") as fs:
+                    for i in fs.readlines():
+                        tmp = i.split(',')
+                        x_str = tmp[0]
+                        y_str = tmp[1]
+                        try:
+                            result.append((float(x_str[1:]),(float(y_str[:-2]))))
+                        except:
+                            pass
+
+            except Exception as e:
+                tkMessageBox.showerror("Reading error", e.message)
+                self.is_target_set = False
+                return False
+
+            self.xy_target = result
+            self.draw_graph(self.xy_target, self.target_line)
+            self.is_target_set = True
 
             if self.info_panel is not None:
                 self.unbind("<Enter>")
@@ -161,7 +160,7 @@ class GraphPanel(Frame):
             return False
 
     def get_xy_point_values(self):
-        return self.x_points, self.y_points
+        return self.xy_points
 
     def add_interpolated_plot(self, x, y):
         if len(self.a.lines) > 1:
@@ -169,9 +168,6 @@ class GraphPanel(Frame):
 
         self.interpol_line = self.a.plot(x, y, '--')
         self.canvas.draw()
-
-    def del_interploated_plot(self, p):
-        pass
 
     def display_info(self, event, arg):
         if self.info_panel is not None:

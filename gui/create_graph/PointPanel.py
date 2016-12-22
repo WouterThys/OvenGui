@@ -32,9 +32,9 @@ class PointPanel(Frame):
         self.y_point_ent.grid(row=2, column=1, sticky='ew')
 
         self.add_btn = Button(self, text="Add")
-        self.add_btn.grid(row=3, column=0)
+        self.add_btn.grid(row=3, column=0, sticky='nsew')
         self.del_btn = Button(self, text="Delete")
-        self.del_btn.grid(row=3, column=1)
+        self.del_btn.grid(row=3, column=1, sticky='nsew')
 
     def set_xy_values(self, x, y):
         self.x_point_txt.set(str(x))

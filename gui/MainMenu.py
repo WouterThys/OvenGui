@@ -6,10 +6,11 @@ from gui.create_graph.CreateGraphPanel import CreateGraphWindow
 
 
 class MainMenu:
-    def __init__(self, parent, serial, pid, end_command):
+    def __init__(self, parent, serial, pid, main_screen, end_command):
         self.parent = parent
         self.serial = serial
         self.pid = pid
+        self.main_screen = main_screen
         self.end_command = end_command
 
         menu = Menu(parent)
@@ -50,5 +51,5 @@ class MainMenu:
 
     def menu_graph_create(self):
         new_window = Toplevel(self.parent)
-        create_graph = CreateGraphWindow(new_window)
+        create_graph = CreateGraphWindow(new_window, self.main_screen)
         create_graph.pack()

@@ -21,7 +21,7 @@ class MainScreen:
         self.manager = manager
         self.interval = interval
         # Set up the main menu
-        MainMenu.MainMenu(master, self.manager.my_serial, self.manager.pid, end_command)
+        MainMenu.MainMenu(master, self.manager.my_serial, self.manager.pid, self, end_command)
         # Window settings
         self.master.minsize(width=1000, height=500)
         self.master.wm_title("Oven")
@@ -118,19 +118,21 @@ class MainScreen:
         fd = FileDialog(self.master)
         graph_file = fd.open_file_name()
         if graph_file:
-            if os.path.isfile:
-                if self.graph.set_target_graph(graph_file):
-                    self.manager.temp_target = self.graph.y_target
-                    self.control_panel.enable_start_btn(True)
-                    self.control_panel.enable_stop_btn(False)
-                    self.control_panel.enable_graph_btn(True)
-                else:
-                    tkMessageBox.showerror("Error reading file",
-                                           "An error occurred because the korean children did not understand it, "
-                                           "check if the file was correct...")
+            self.set_target_graph(graph_file)
+
+    def set_target_graph(self, graph_file):
+        if os.path.isfile:
+            if self.graph.set_target_graph(graph_file):
+                self.control_panel.enable_start_btn(True)
+                self.control_panel.enable_stop_btn(False)
+                self.control_panel.enable_graph_btn(True)
             else:
-                tkMessageBox.showerror("Error file type",
-                                       "We have decided this is not a valid file type...")
+                tkMessageBox.showerror("Error reading file",
+                                       "An error occurred because the korean children did not understand it, "
+                                       "check if the file was correct...")
+        else:
+            tkMessageBox.showerror("Error file type",
+                                   "We have decided this is not a valid file type...")
 
     def on_uart_settings_btn_click(self):
         SerialSettingsDialog(self.master, self.manager.my_serial)
