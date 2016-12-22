@@ -28,16 +28,15 @@ class MainScreen:
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_rowconfigure(1, weight=1)
         self.master.grid_rowconfigure(2, weight=1)
-        self.master.grid_rowconfigure(3, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_columnconfigure(1, weight=1)
 
         # Bottom panel
         self.bottom_panel = BottomPanel(master)
-        self.bottom_panel.grid(row=3, column=0, columnspan=2, sticky='nsew')
+        self.bottom_panel.grid(row=3, column=0, columnspan=2, sticky='ew')
 
         # Graph panel
-        self.graph = GraphPanel(master, self.bottom_panel, self.interval)
+        self.graph = GraphPanel(master, info_panel=self.bottom_panel, is_create_graph=False, interval=self.interval)
         self.graph.grid(row=0, rowspan=2, column=0, sticky='nsew')
 
         # Control panel

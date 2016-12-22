@@ -5,7 +5,8 @@ import os
 from scipy.interpolate import interp1d
 from Tkinter import *
 from matplotlib.lines import Line2D
-from errors.Errors import InvalidPointsException, InterpolateFailedException
+from errors.Errors import InvalidPointsException
+from gui.BottomPanel import BottomPanel
 from gui.GraphPanel import GraphPanel
 from gui.create_graph.DrawLinePanel import DrawLinePanel
 from gui.create_graph.PointPanel import PointPanel
@@ -19,6 +20,7 @@ class CreateGraphWindow(Frame):
         Frame.__init__(self, master, *args, **kwargs)
 
         # Variables
+        master.wm_title("Create graph")
         self.main_screen = main_screen
         self.interpolated_x = []
         self.interpolated_y = []
@@ -34,8 +36,12 @@ class CreateGraphWindow(Frame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
+        # Bottom panel
+        self.bottom_panel = BottomPanel(self)
+        self.bottom_panel.grid(row=3, column=0, columnspan=2, sticky='ew')
+
         # Graph
-        self.graph = GraphPanel(self)
+        self.graph = GraphPanel(self, info_panel=self.bottom_panel, is_create_graph=True)
         self.graph.grid(row=0,rowspan=3,column=0,sticky='nsew')
 
         def on_pick_event(event):
@@ -82,6 +88,7 @@ class CreateGraphWindow(Frame):
 
         master.update()
         master.minsize(master.winfo_width(), master.winfo_height())
+        master.resizable(0,0)
 
     """
     Events
@@ -103,7 +110,7 @@ class CreateGraphWindow(Frame):
 
     def on_interpolate_btn_click(self):
         points = self.graph.get_xy_point_values()
-        if points is not None:
+        if (points is not None) and (len(points) > 0):
             points = sorted(points, key=lambda point:point[0])
             x,y = zip(*points)
             try:
@@ -118,6 +125,8 @@ class CreateGraphWindow(Frame):
                 tkMessageBox.showerror("Value error", e.message)
             except TypeError as e:
                 tkMessageBox.showerror("Interpolation error", "Failed to interpolate points... "+e.message)
+        else:
+            tkMessageBox.showerror("Poins error", "First select some points")
 
     def on_save_btn_click(self):
         if (len(self.interpolated_x) == 0) or (len(self.interpolated_y) == 0):
