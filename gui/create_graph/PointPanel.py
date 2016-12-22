@@ -4,9 +4,9 @@ from Tkinter import *
 
 class PointPanel(Frame):
     def __init__(self, master, *args, **kwargs):
-        # Frame.__init__(self, master, width=50, height=100, *args, **kwargs)
         Frame.__init__(self, master, *args, **kwargs)
 
+        self.master=master
         self.config(bd=1, relief=RAISED, padx=2, pady=2)
         self.default_bg = self.cget('bg')
         self.columnconfigure(0, weight=1)
@@ -17,7 +17,7 @@ class PointPanel(Frame):
 
         # Title
         title_lbl = Label(self, text="Points", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=2)
+        title_lbl.grid(row=0, columnspan=2, sticky='ew')
 
         # Widgets
         Label(self, text="X point", fg="dim gray").grid(row=1, column=0, sticky='w')
@@ -43,22 +43,22 @@ class PointPanel(Frame):
     def get_xy_values(self):
         try:
             if self.x_point_ent.get() == "":
-                tkMessageBox.showerror("Error", "X point can not be empty!")
+                tkMessageBox.showerror("Error", "X point can not be empty!", parent=self.master)
                 return None
             if float(self.x_point_ent.get()) < 0:
-                tkMessageBox.showerror("Error", "X point has to be bigger than 0!")
+                tkMessageBox.showerror("Error", "X point has to be bigger than 0!", parent=self.master)
                 return None
             if self.y_point_ent.get() == "":
-                tkMessageBox.showerror("Error", "Y point can not be empty!")
+                tkMessageBox.showerror("Error", "Y point can not be empty!", parent=self.master)
                 return None
             if float(self.y_point_ent.get()) < 0:
-                tkMessageBox.showerror("Error", "Y point has to be bigger than 0!")
+                tkMessageBox.showerror("Error", "Y point has to be bigger than 0!", parent=self.master)
                 return None
 
             return float(self.x_point_ent.get()), float(self.y_point_ent.get())
 
         except ValueError as e:
-            tkMessageBox.showerror("Error", "Input value has to be numeric: "+e)
+            tkMessageBox.showerror("Error", "Input value has to be numeric: "+e.message, parent=self.master)
 
     def clear_entries(self):
         self.x_point_ent.delete(0,END)

@@ -17,7 +17,7 @@ class FeedBackPanel(Frame):
         self.rowconfigure(5, weight=1)
 
         title_lbl = Label(self, text="Values", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=4)
+        title_lbl.grid(row=0, columnspan=4, sticky='ew')
 
         ent_opt_dis = {'fg': 'gainsboro', 'state': DISABLED, 'justify': CENTER, 'width': 8}
         ent_opt_ena = {'fg': 'gainsboro', 'state': NORMAL, 'justify': CENTER, 'width': 8}

@@ -12,7 +12,7 @@ class TemperaturePanel(Frame):
         self.rowconfigure(1, weight=1)
 
         title_lbl = Label(self, text="Temperature", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, column=0, columnspan=2)
+        title_lbl.grid(row=0, column=0, columnspan=2, sticky='ew')
 
         self.temperature = 0.00
         self.temp_txt = StringVar()

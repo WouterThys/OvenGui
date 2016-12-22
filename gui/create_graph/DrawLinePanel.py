@@ -16,7 +16,7 @@ class DrawLinePanel(Frame):
 
         # Title
         title_lbl = Label(self, text="Line", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=2)
+        title_lbl.grid(row=0, columnspan=2, sticky='ew')
 
         # Widgets
         vals = ('zero', 'slinear', 'quadratic', 'cubic')

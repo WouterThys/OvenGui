@@ -4,8 +4,6 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from errors.Errors import InvalidPointsException
-
 matplotlib.use('TkAgg')
 
 
@@ -28,13 +26,10 @@ class GraphPanel(Frame):
         self.xy_target = []
         self.is_target_set = False
         self.xy_pid = []
-        self.xy_points = []
 
         self.target_line, = self.axes.plot([], [])
         self.real_line, = self.axes.plot([], [], '.r')
         self.pid_line, = self.axes.plot([], [])
-        self.create_line, = self.axes.plot([], [], 'ro', picker=5)
-        self.interpol_line, = self.axes.plot([], [])
 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.show()
@@ -92,22 +87,6 @@ class GraphPanel(Frame):
         self.axes.set_ylim([0, 400])
         # self.a.set_xlim([0, max(self.x_real) + 2 * INTERVAL])
 
-    def set_point(self, new_x, new_y):
-        if (new_x, new_y) not in self.xy_points:
-            self.xy_points.append((new_x,new_y))
-        # Sort and draw
-        self.xy_points.sort()
-        self.draw_graph(self.xy_points, self.create_line)
-
-    def delete_point(self, new_x, new_y):
-        if (new_x, new_y) in self.xy_points:
-            self.xy_points.remove((new_x, new_y))
-            # Sort and draw
-            self.xy_points.sort()
-            self.draw_graph(self.xy_points, self.create_line)
-        else:
-            raise InvalidPointsException("Can not find point: {0}".format((new_x, new_y)))
-
     def set_target_graph2(self, graph_file_name):
         cnt = 0
         x_vals = []
@@ -148,13 +127,22 @@ class GraphPanel(Frame):
             try:
                 with open(graph_file_name, "r") as fs:
                     for i in fs.readlines():
-                        tmp = i.split(',')
-                        x_str = tmp[0]
-                        y_str = tmp[1]
-                        try:
-                            result.append((float(x_str[1:]),(float(y_str[:-2]))))
-                        except:
-                            pass
+                        if i.__contains__("Text"):
+                            i = i[5:-3]
+                            tmp = i.split(',')
+                            tmp_x = float(tmp[0])
+                            tmp_y = float(tmp[1])
+                            tmp_t = str(tmp[2])
+                            tmp_t.replace("'", '')
+                            self.axes.text(tmp_x, tmp_y, tmp_t)
+                        else:
+                            tmp = i.split(',')
+                            x_str = tmp[0]
+                            y_str = tmp[1]
+                            try:
+                                result.append((float(x_str[1:]),(float(y_str[:-2]))))
+                            except:
+                                pass
 
             except Exception as e:
                 tkMessageBox.showerror("Reading error", e.message)
@@ -174,14 +162,16 @@ class GraphPanel(Frame):
             self.is_target_set = False
             return False
 
-    def get_xy_point_values(self):
-        return self.xy_points
-
     def add_interpolated_plot(self, x, y):
         if len(self.axes.lines) > 1:
             self.axes.lines.pop(-1)
 
         self.interpol_line = self.axes.plot(x, y, '--')
+        self.canvas.draw()
+
+    def set_axes_limits(self, x_lim, y_lim):
+        self.axes.set_ylim([-1, x_lim])
+        self.axes.set_xlim([-1, y_lim])
         self.canvas.draw()
 
     def display_info(self, event, arg):

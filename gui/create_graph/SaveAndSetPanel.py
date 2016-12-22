@@ -1,4 +1,3 @@
-import tkMessageBox
 from Tkinter import *
 
 
@@ -16,7 +15,7 @@ class SaveAndSetPanel(Frame):
 
         # Title
         title_lbl = Label(self, text="Save graph", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=2)
+        title_lbl.grid(row=0, columnspan=2, sticky='ew')
 
         Label(self, text="Name: ", fg="dim gray").grid(row=1, column=0, sticky='ew')
         self.graph_name_ent = Entry(self)
