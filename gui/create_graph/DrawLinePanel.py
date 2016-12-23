@@ -22,7 +22,7 @@ class DrawLinePanel(Frame):
         vals = ('zero', 'slinear', 'quadratic', 'cubic')
         self.interpolation_txt = StringVar()
         self.interpolation_cb = ttk.Combobox(self, textvariable=self.interpolation_txt, values=vals)
-        self.interpolation_cb.current(0)
+        self.interpolation_cb.current(3)
         self.interpolation_cb.grid(row=1, column=0, columnspan=2, sticky="ew")
 
         self.interpolation_btn = Button(self, text="Interpolate")

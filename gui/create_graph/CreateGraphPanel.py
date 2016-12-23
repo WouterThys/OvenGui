@@ -84,6 +84,7 @@ class CreateGraphWindow(Frame):
                         x = float("{0:.2f}".format(event.xdata))
                         y = float("{0:.2f}".format(event.ydata))
                         self.add_point(x,y)
+                        self.point_panel.set_xy_values(x, y)
                     except ValueError:
                         pass
                 self.pick_event = False
@@ -186,12 +187,17 @@ class CreateGraphWindow(Frame):
         xy = zip(self.interpolated_x, self.interpolated_y)
         name = self.save_and_set_panel.get_graph_name()
         if name:
-            with open(PATH+name+'.txt', "w") as graph_file:
+            if str(name).__contains__('.txt'):
+                graph_name = name
+            else:
+                graph_name = name+'.txt'
+            with open(PATH+graph_name, "w") as graph_file:
                 for i in xy:
                     graph_file.write(str(i)+'\n')
                 if len(self.text_fields) > 0:
                     for t in self.text_fields:
                         graph_file.write(str(t)+'\n')
+                tkMessageBox.showinfo("Saved", "Graph '{0}'saved to: {1}".format(graph_name, PATH))
             self.saved = True
         else:
             tkMessageBox.showerror("Invalid name", "Name can not be empty!", parent=self)

@@ -87,40 +87,6 @@ class GraphPanel(Frame):
         self.axes.set_ylim([0, 400])
         # self.a.set_xlim([0, max(self.x_real) + 2 * INTERVAL])
 
-    def set_target_graph2(self, graph_file_name):
-        cnt = 0
-        x_vals = []
-        y_vals = []
-        if graph_file_name:
-            try:
-                with open(graph_file_name, "r") as file_stream:
-                    for line in file_stream:
-                        current_line = line.split(",")
-                        for val in current_line:
-                            if val == '\n':
-                                continue
-                            y_vals.append(float(val.strip()))
-                            x_vals.append(float(cnt))
-                            cnt += self.interval
-
-            except Exception as e:
-                print e.message
-                self.is_target_set = False
-                return False
-
-            self.xy_target = zip(x_vals, y_vals)
-            self.draw_graph(self.xy_target, self.target_line)
-            self.is_target_set = True
-
-            if self.info_panel is not None:
-                self.unbind("<Enter>")
-
-            return True
-        else:
-            # Return some error
-            self.is_target_set = False
-            return False
-
     def set_target_graph(self, graph_file_name):
         result = []
         if graph_file_name:
