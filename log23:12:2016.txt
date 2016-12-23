@@ -1,0 +1,12 @@
+* time: 20:16:34, sender: , type: ack, command: , message: 1
+* time: 20:16:34, sender: Panda, type: message, command: AR, message: 2352
+* time: 20:16:35, sender: , type: ack, command: , message: 2
+* time: 20:16:35, sender: Panda, type: message, command: AR, message: 2352
+* time: 20:31:02, sender: Panda, type: message, command: IN, message: Initialized
+* time: 20:31:19, sender: , type: ack, command: , message: 1
+* time: 20:31:19, sender: Panda, type: message, command: AR, message: 2367
+* time: 20:44:20, sender: Panda, type: message, command: IN, message: Initialized
+* time: 20:44:21, sender: Panda, type: message, command: IN, message: Initialized
+* time: 20:44:22, sender: Panda, type: message, command: IN, message: Initialized
+* time: 20:44:25, sender: Panda, type: message, command: IN, message: Initialized
+* time: 20:44:25, sender: Panda, type: message, command: IN, message: Initialized
