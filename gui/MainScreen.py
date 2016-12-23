@@ -21,7 +21,7 @@ class MainScreen:
         self.manager = manager
         self.interval = interval
         # Set up the main menu
-        MainMenu.MainMenu(master, self.manager.my_serial, self.manager.pid, self, end_command)
+        MainMenu.MainMenu(master, self.manager.my_serial, self.manager.fsm.pid, self, end_command)
         # Window settings
         self.master.minsize(width=1000, height=500)
         self.master.wm_title("Oven")
@@ -51,9 +51,9 @@ class MainScreen:
 
         # Feed back panel
         self.feedback_panel = FeedBackPanel(master)
-        self.feedback_panel.set_kp_value(self.manager.pid.Kp)
-        self.feedback_panel.set_ki_value(self.manager.pid.Ki)
-        self.feedback_panel.set_kd_value(self.manager.pid.Kd)
+        self.feedback_panel.set_kp_value(self.manager.fsm.pid.Kp)
+        self.feedback_panel.set_ki_value(self.manager.fsm.pid.Ki)
+        self.feedback_panel.set_kd_value(self.manager.fsm.pid.Kd)
         self.feedback_panel.grid(row=1, column=1, sticky='nsew')
 
         # Temperature panel
@@ -74,7 +74,7 @@ class MainScreen:
         Set the appropriate fields
         """
         self.feedback_panel.update_all(self.manager)
-        self.temperature_panel.set_temperature_value(self.manager.temp_real)
+        self.temperature_panel.set_temperature_value(self.manager.fsm.temp_real)
 
         msg = self.manager.last_message
         if not msg is None:
@@ -99,19 +99,19 @@ class MainScreen:
     Events
     """
     def on_start_btn_click(self):
-        if self.manager.door_state == 'C':
-            self.manager.start_writing_thread()
+        if not self.manager.fsm.door_open_state:
             self.control_panel.enable_start_btn(False)
             self.control_panel.enable_stop_btn(True)
             self.control_panel.enable_graph_btn(False)
+            self.manager.fsm.should_start = True
         else:
             tkMessageBox.showwarning('Door open', 'Close the oven door before starting...')
 
     def on_stop_btn_click(self):
-        self.manager.stop_writing_thread()
         self.control_panel.enable_start_btn(True)
         self.control_panel.enable_stop_btn(False)
         self.control_panel.enable_graph_btn(True)
+        self.manager.fsm.should_stop = True
 
     def on_graph_btn_click(self):
         fd = FileDialog(self.master)
@@ -132,6 +132,7 @@ class MainScreen:
         else:
             tkMessageBox.showerror("Error file type",
                                    "We have decided this is not a valid file type...")
+        self.manager.fsm.graph_set = self.graph.is_target_set
 
     def on_uart_settings_btn_click(self):
         SerialSettingsDialog(self.master, self.manager.my_serial)

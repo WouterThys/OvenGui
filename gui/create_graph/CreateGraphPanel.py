@@ -13,7 +13,6 @@ from gui.create_graph.DrawLinePanel import DrawLinePanel
 from gui.create_graph.PointPanel import PointPanel
 from gui.create_graph.SaveAndSetPanel import SaveAndSetPanel
 from gui.create_graph.ToolsPanel import ToolsPanel
-from utils import Utils
 
 PATH = os.path.join(os.path.dirname(__file__),"graphs/")
 

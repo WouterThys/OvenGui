@@ -1,7 +1,7 @@
 import time
 
-MESSAGE_TYPES = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]"), ("block", "[B]")])
-COMMAND_TYPES = dict([("Initialize", "IN"), ("Analog read", "AR"), ("Get name", "GN")])
+pMESSAGE = dict([("message", "[M]"), ("register", "[R]"), ("ack", "[A]"), ("block", "[B]")])
+pCOMMAND = dict([("Initialize", "IN"), ("Analog read", "AR"), ("Get name", "GN")])
 
 class PICMessage:
     def __init__(self, name):
@@ -31,21 +31,21 @@ class PICMessage:
         :return: string with the constructed message
         """
         send_txt = ""
-        if MESSAGE_TYPES.__contains__(type):
+        if pMESSAGE.__contains__(type):
             if ack_id > 9:
                 ack_id = 0
             self.ack_id = ack_id
-            send_txt = self.start_char + MESSAGE_TYPES.get(
+            send_txt = self.start_char + pMESSAGE.get(
                 type) + ":" + self.my_name + ":"+ str(1) +":" + command + ":" + message + ":" + str(ack_id) + self.stop_char
         return send_txt
 
     def construct_block(self, type, command, message, length, ack_id):
         send_txt = ""
-        if MESSAGE_TYPES.__contains__(type):
+        if pMESSAGE.__contains__(type):
             if ack_id > 9:
                 ack_id = 0
             self.ack_id = ack_id
-            send_txt = self.start_char + MESSAGE_TYPES.get(type) + ":" + self.my_name + ":"+ str(length) +":"
+            send_txt = self.start_char + pMESSAGE.get(type) + ":" + self.my_name + ":" + str(length) + ":"
 
             cnt = 0
             for c in command:
@@ -83,7 +83,7 @@ class PICMessage:
         # Check message type
         try:
             t = input_msg[0:3]
-            if t == MESSAGE_TYPES.get("message"):
+            if t == pMESSAGE.get("message"):
                 input_msg = input_msg[3:]
                 m = input_msg.split(":")
                 self.type = "message"
@@ -93,7 +93,7 @@ class PICMessage:
                 self.message_time = time.time()
                 self.write_to_file()
                 return 1
-            elif t == MESSAGE_TYPES.get("ack"):
+            elif t == pMESSAGE.get("ack"):
                 input_msg = input_msg[3:]
                 self.message = input_msg
                 self.message_time = time.time()

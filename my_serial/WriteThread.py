@@ -1,7 +1,7 @@
 import threading
 import time
 import tkMessageBox
-from PICClasses import COMMAND_TYPES, MESSAGE_TYPES
+from PICClasses import pCOMMAND, pMESSAGE
 
 
 class WriteThread(threading.Thread):
@@ -28,7 +28,7 @@ class WriteThread(threading.Thread):
         while not self.event.is_set():
             start_time = time.time()
             if self.serial_interface.isReady:
-                self.command.append(COMMAND_TYPES.get("Analog read"))
+                self.command.append(pCOMMAND.get("Analog read"))
                 self.message.append("")
 
                 self.command.append("HE")

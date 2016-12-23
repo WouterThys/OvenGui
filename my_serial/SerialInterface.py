@@ -12,7 +12,7 @@ WRITE_STATE_ACK = 3
 
 class SerialInterface:
     def __init__(self):
-        self.isReady = False
+        self.is_ready = False
         self.ack_id = 0
         self.ser = None
 
@@ -39,9 +39,9 @@ class SerialInterface:
             tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
 
         if self.ser is not None:
-            self.isReady = self.ser.isOpen()
+            self.is_ready = self.ser.isOpen()
         else:
-            self.isReady = False
+            self.is_ready = False
 
     @staticmethod
     def serial_ports():
@@ -106,7 +106,7 @@ class SerialInterface:
     def serial_read(self):
         if self.ser.isOpen():
             try:
-                if self.isReady:
+                if self.is_ready:
                     out = ""
                     c = ''
                     cnt = 0

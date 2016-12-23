@@ -134,49 +134,49 @@ class FeedBackPanel(Frame):
             self.door_ent.configure(bg=None)
 
     def set_state_state(self, state):
-        pass
+        self.state_txt.set(state)
 
     def set_heater_state(self, state):
-        if state == 'ON':
+        if state:
             self.heater_txt.set('On')
             self.heater_ent.configure(fg="gainsboro")
             self.heater_ent.configure(bg="orange red")
-        elif state == 'OFF':
+        else:
             self.heater_txt.set('Off')
             self.heater_ent.configure(fg="dim gray")
             self.heater_ent.configure(bg=self.default_bg)
-        else:
-            self.heater_txt.set('...')
-            self.heater_ent.configure(fg="dim gray")
-            self.heater_ent.configure(bg=self.default_bg)
+        # else:
+        #     self.heater_txt.set('...')
+        #     self.heater_ent.configure(fg="dim gray")
+        #     self.heater_ent.configure(bg=self.default_bg)
 
     def set_fan_state(self, state):
-        if state == 'ON':
+        if state:
             self.fan_txt.set('On')
             self.fan_ent.configure(fg="gainsboro")
             self.fan_ent.configure(bg="royal blue")
-        elif state == 'OFF':
+        else:
             self.fan_txt.set('Off')
             self.fan_ent.configure(fg="dim gray")
             self.fan_ent.configure(bg=self.default_bg)
-        else:
-            self.fan_txt.set('...')
-            self.fan_ent.configure(fg="dim gray")
-            self.fan_ent.configure(bg=self.default_bg)
+        # else:
+        #     self.fan_txt.set('...')
+        #     self.fan_ent.configure(fg="dim gray")
+        #     self.fan_ent.configure(bg=self.default_bg)
 
     def update_all(self, manager):
-        self.set_target_value(manager.pid.set_point)
-        self.set_sense_value(manager.temp_real)
-        self.set_error_value(manager.pid.error)
-        self.set_pid_value(manager.pid.output)
+        self.set_target_value(manager.fsm.pid.set_point)
+        self.set_sense_value(manager.fsm.temp_real)
+        self.set_error_value(manager.fsm.pid.error)
+        self.set_pid_value(manager.fsm.pid.output)
 
-        self.set_door_state(manager.door_state)
-        self.set_state_state(manager.state)
-        self.set_heater_state(manager.heater)
-        self.set_fan_state(manager.fan)
+        self.set_door_state(manager.fsm.door_open_state)
+        self.set_state_state(manager.fsm.fsm_current_state)
+        self.set_heater_state(manager.fsm.heater_state)
+        self.set_fan_state(manager.fsm.fan_state)
 
-        self.set_kp_value(manager.pid.Kp)
-        self.set_ki_value(manager.pid.Ki)
-        self.set_kd_value(manager.pid.Kd)
+        self.set_kp_value(manager.fsm.pid.Kp)
+        self.set_ki_value(manager.fsm.pid.Ki)
+        self.set_kd_value(manager.fsm.pid.Kd)
 
 

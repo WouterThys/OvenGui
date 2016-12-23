@@ -26,7 +26,7 @@ class ReadThread(threading.Thread):
         # count = 0
         while not self.event.is_set():
             start_time = time.time()
-            if self.serial_interface.isReady:
+            if self.serial_interface.is_ready:
                 if self.serial_interface.serial_has_input() > 0:
                     msg = self.serial_interface.serial_read()
                     message = PICMessage("Compy")

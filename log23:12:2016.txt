@@ -10,3 +10,9 @@
 * time: 20:44:22, sender: Panda, type: message, command: IN, message: Initialized
 * time: 20:44:25, sender: Panda, type: message, command: IN, message: Initialized
 * time: 20:44:25, sender: Panda, type: message, command: IN, message: Initialized
+* time: 22:57:11, sender: , type: ack, command: , message: 1
+* time: 22:57:11, sender: Panda, type: message, command: Oops, message: Did not understand that command
+* time: 23:00:17, sender: Panda, type: message, command: IN, message: Initialized
+* time: 23:14:11, sender: Panda, type: message, command: IN, message: Initialized
+* time: 23:23:50, sender: , type: ack, command: , message: 1~²kÓ×-s#Ó–sÓ–sK£KcKÓ+##f¶­Z-s#Ó–sÓö[#f¶­Z-s#Óö{ƒ›ÓFK#æ{£Vs#+“›£s#FC£6{kks##ş&[M]Panda:IN:Initialized
+* time: 23:23:51, sender: Panda, type: message, command: IN, message: Initialized
