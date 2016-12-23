@@ -11,25 +11,6 @@ from utils.Utils import digital_to_temp
 
 TIME_INTERVAL = 1 # Time interval in seconds
 
-# TARGET_Y = []
-# TARGET_X = []
-# for i in range(0,350):
-#     TARGET_X.append(i)
-#     if i < 110:
-#         TARGET_Y.append((180.0/110.0)*float(i))
-#     if (i >= 110) and (i < 200):
-#         TARGET_Y.append(180)
-#     if (i >= 200) and (i < 250):
-#         TARGET_Y.append((120.0/50.0)*(float(i)-200) + 180)
-#     if (i >= 250) and (i < 260):
-#         TARGET_Y.append(300)
-#     if i >= 260:
-#         TARGET_Y.append(TARGET_Y[-1]-2)
-#
-# target = (TARGET_X, TARGET_Y)
-# print TARGET_Y
-
-
 class Manager:
     """
     Launch the main part of the GUI and the worker thread. periodic_call and end_application could reside in the GUI
@@ -114,7 +95,7 @@ class Manager:
                             self.pid.set_point = self.temp_target[self.cnt]  # Point it should be
                             self.cnt += 1
                             pid_output = self.pid.do_work(self.temp_real)
-                            self.gui.graph.update_graph(self.temp_real, pid_output)
+                            self.gui.graph.append_graph(self.temp_real, pid_output)
                         except ValueError:
                             pass
 

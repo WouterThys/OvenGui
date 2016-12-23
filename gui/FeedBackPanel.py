@@ -17,7 +17,7 @@ class FeedBackPanel(Frame):
         self.rowconfigure(5, weight=1)
 
         title_lbl = Label(self, text="Values", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=4)
+        title_lbl.grid(row=0, columnspan=4, sticky='ew')
 
         ent_opt_dis = {'fg': 'gainsboro', 'state': DISABLED, 'justify': CENTER, 'width': 8}
         ent_opt_ena = {'fg': 'gainsboro', 'state': NORMAL, 'justify': CENTER, 'width': 8}
@@ -163,5 +163,20 @@ class FeedBackPanel(Frame):
             self.fan_txt.set('...')
             self.fan_ent.configure(fg="dim gray")
             self.fan_ent.configure(bg=self.default_bg)
+
+    def update_all(self, manager):
+        self.set_target_value(manager.pid.set_point)
+        self.set_sense_value(manager.temp_real)
+        self.set_error_value(manager.pid.error)
+        self.set_pid_value(manager.pid.output)
+
+        self.set_door_state(manager.door_state)
+        self.set_state_state(manager.state)
+        self.set_heater_state(manager.heater)
+        self.set_fan_state(manager.fan)
+
+        self.set_kp_value(manager.pid.Kp)
+        self.set_ki_value(manager.pid.Ki)
+        self.set_kd_value(manager.pid.Kd)
 
 

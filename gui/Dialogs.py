@@ -3,6 +3,7 @@ import tkFileDialog
 import tkMessageBox
 import tkSimpleDialog
 from Tkinter import *
+import ttk
 
 import serial
 
@@ -31,11 +32,11 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
         stop_str = StringVar()
         pari_str = StringVar()
 
-        self.port_sp = Spinbox(master, values=SerialInterface.serial_ports(), textvariable=port_str)
-        self.baud_sp = Spinbox(master, values=serial.Serial.BAUDRATES, textvariable=baud_str)
-        self.bits_sp = Spinbox(master, values=serial.Serial.BYTESIZES, textvariable=bits_str)
-        self.stop_sp = Spinbox(master, values=serial.Serial.STOPBITS,  textvariable=stop_str)
-        self.pari_sp = Spinbox(master, values=serial.Serial.PARITIES,  textvariable=pari_str)
+        self.port_cb = ttk.Combobox(master, values=SerialInterface.serial_ports(), textvariable=port_str)
+        self.baud_cb = ttk.Combobox(master, values=serial.Serial.BAUDRATES, textvariable=baud_str)
+        self.bits_cb = ttk.Combobox(master, values=serial.Serial.BYTESIZES, textvariable=bits_str)
+        self.stop_cb = ttk.Combobox(master, values=serial.Serial.STOPBITS, textvariable=stop_str)
+        self.pari_cb = ttk.Combobox(master, values=serial.Serial.PARITIES, textvariable=pari_str)
 
         port_str.set(self.my_serial.ser.port)
         baud_str.set(self.settings.get("baudrate"))
@@ -43,20 +44,20 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
         stop_str.set(self.settings.get("stopbits"))
         pari_str.set(self.settings.get("partity"))
 
-        self.port_sp.grid(row=0, column=1)
-        self.baud_sp.grid(row=1, column=1)
-        self.bits_sp.grid(row=2, column=1)
-        self.stop_sp.grid(row=3, column=1)
-        self.pari_sp.grid(row=4, column=1)
+        self.port_cb.grid(row=0, column=1)
+        self.baud_cb.grid(row=1, column=1)
+        self.bits_cb.grid(row=2, column=1)
+        self.stop_cb.grid(row=3, column=1)
+        self.pari_cb.grid(row=4, column=1)
 
-        return self.baud_sp # Initial focus
+        return self.baud_cb # Initial focus
 
     def validate(self):
         try:
-            self.settings['parity'] = str(self.pari_sp.get())
-            self.settings['baudrate'] = int(self.baud_sp.get())
-            self.settings['bytesize'] = int(self.bits_sp.get())
-            self.settings['stopbits'] = int(self.stop_sp.get())
+            self.settings['parity'] = str(self.pari_cb.get())
+            self.settings['baudrate'] = int(self.baud_cb.get())
+            self.settings['bytesize'] = int(self.bits_cb.get())
+            self.settings['stopbits'] = int(self.stop_cb.get())
             return 1
         except Exception as e:
             tkMessageBox.showerror(
@@ -66,17 +67,12 @@ class SerialSettingsDialog(tkSimpleDialog.Dialog):
             return 0
 
     def apply(self):
-        # self.my_serial.ser.flushInput()
-        # self.my_serial.ser.flushOutput()
-        # self.my_serial.ser.port = str(self.port_sp.get())
-        # self.my_serial.ser.applySettingsDict(self.settings)
-
         yaml_dict = read_settings(UART_SETTINGS)
-        yaml_dict['parity'] = str(self.pari_sp.get())
-        yaml_dict['baud_rate'] = int(self.baud_sp.get())
-        yaml_dict['data_bits'] = int(self.bits_sp.get())
-        yaml_dict['stop_bits'] = int(self.stop_sp.get())
-        yaml_dict['com_port'] = str(self.port_sp.get())
+        yaml_dict['parity'] = str(self.pari_cb.get())
+        yaml_dict['baud_rate'] = int(self.baud_cb.get())
+        yaml_dict['data_bits'] = int(self.bits_cb.get())
+        yaml_dict['stop_bits'] = int(self.stop_cb.get())
+        yaml_dict['com_port'] = str(self.port_cb.get())
         write_settings(UART_SETTINGS, yaml_dict)
 
         self.my_serial.serial_destroy()

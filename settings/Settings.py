@@ -12,6 +12,7 @@ def read_settings(which):
         sets_dict = load(sets)
         return sets_dict[which]
 
+
 def write_settings(which, val):
     with open(PATH+'settings.yml', "r") as sets:
         sets_dict = load(sets)

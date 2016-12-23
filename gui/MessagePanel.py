@@ -8,7 +8,6 @@ class MessagePanel(Frame):
         Frame.__init__(self, master, height=20, *args, **kwargs)
 
         self.config(bd=1, relief=RAISED, padx=2, pady=10)
-        self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -19,10 +18,10 @@ class MessagePanel(Frame):
 
         #
         title_lbl = Label(self, text="Feedback", bd=2, relief=FLAT, fg="slate gray")
-        title_lbl.grid(row=0, columnspan=4)
+        title_lbl.grid(row=0, columnspan=4, sticky='ew')
 
         input_frame = Frame(self, borderwidth=3, relief=SUNKEN)
-        input_frame.grid(row=1, column=0, columnspan=4)
+        input_frame.grid(row=1, column=0, columnspan=4, sticky='nsew')
 
         # Names
         time_lbl = Label(input_frame, text="Time", fg="dim gray")
@@ -39,15 +38,15 @@ class MessagePanel(Frame):
                        'wrap': 'word'}
 
         self.time_txt = Text(input_frame, width=10, height=8, **txt_options)
-        self.time_txt.grid(row=2, column=0, pady=2)
+        self.time_txt.grid(row=2, column=0, pady=2, sticky='nsew')
         self.time_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.time_txt.bind("<Button-5>", self.on_mouse_wheel)
         self.sender_txt = Text(input_frame, width=10, height=8, **txt_options)
-        self.sender_txt.grid(row=2, column=1, pady=2)
+        self.sender_txt.grid(row=2, column=1, pady=2, sticky='nsew')
         self.sender_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.sender_txt.bind("<Button-5>", self.on_mouse_wheel)
         self.command_txt = Text(input_frame, width=10, height=8, **txt_options)
-        self.command_txt.grid(row=2, column=2, pady=2)
+        self.command_txt.grid(row=2, column=2, pady=2, sticky='nsew')
         self.command_txt.bind("<Button-4>", self.on_mouse_wheel)
         self.command_txt.bind("<Button-5>", self.on_mouse_wheel)
         self.message_txt = Text(input_frame, width=30, height=8, **txt_options)

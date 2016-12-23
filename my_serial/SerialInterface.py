@@ -38,7 +38,10 @@ class SerialInterface:
         except serial.SerialException as e:
             tkMessageBox.showerror("Serial error", "Error opening port: "+e.message)
 
-        self.isReady = self.ser.isOpen()
+        if self.ser is not None:
+            self.isReady = self.ser.isOpen()
+        else:
+            self.isReady = False
 
     @staticmethod
     def serial_ports():
